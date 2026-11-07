@@ -3,12 +3,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Halloween — O Último Caldeirão</title>
 <style>
-:root{--p:#210B38;--r:#D71936;--g:#B7FF00;--k:#09070D;--d:#19151F;--w:#E8E2DC}
+:root{--p:#210B38;--r:#FF4D6A;--g:#D71936;--k:#09070D;--d:#19151F;--w:#E8E2DC}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--k);color:var(--w);font-family:Georgia,serif}
 #menu{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;
  background:radial-gradient(ellipse at 50% 30%,#3a1260 0%,var(--k) 70%)}
-h1{font-family:Impact,'Arial Narrow',sans-serif;letter-spacing:3px;text-transform:uppercase;color:var(--g);font-size:clamp(2rem,7vw,3.6rem);margin:0 0 12px;text-shadow:0 0 22px #b7ff0070}
+h1{font-family:Impact,'Arial Narrow',sans-serif;letter-spacing:3px;text-transform:uppercase;color:var(--g);font-size:clamp(2rem,7vw,3.6rem);margin:0 0 12px;text-shadow:0 0 22px #d7193670}
 p{max-width:460px;line-height:1.5;opacity:.85}
 .b{display:block;width:min(320px,90vw);margin:8px;padding:14px;font:inherit;font-size:1.1rem;color:var(--w);background:var(--p);border:2px solid var(--g);cursor:pointer}
 .b:hover{background:var(--r)}
@@ -30,24 +30,24 @@ p{max-width:460px;line-height:1.5;opacity:.85}
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Halloween — O Último Caldeirão</title>
 <style>
-:root{--p:#210B38;--r:#D71936;--g:#B7FF00;--k:#09070D;--d:#19151F;--w:#E8E2DC}
+:root{--p:#210B38;--r:#FF4D6A;--g:#D71936;--k:#09070D;--d:#19151F;--w:#E8E2DC}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--k);color:var(--w);font-family:Georgia,serif;overflow:hidden}
 #game{position:fixed;inset:0}
 #vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,transparent 55%,#09070Dcc 100%)}
 .ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(9,7,13,.9);z-index:5;padding:16px}
 .ov.on{display:flex}
-.box{background:var(--d);border:2px solid var(--g);box-shadow:0 0 34px #b7ff0040;padding:24px;max-width:620px;width:100%;max-height:94vh;overflow:auto;animation:in .4s}
+.box{background:var(--d);border:2px solid var(--g);box-shadow:0 0 34px #d7193655;padding:24px;max-width:620px;width:100%;max-height:94vh;overflow:auto;animation:in .4s}
 @keyframes in{from{opacity:0;transform:translateY(14px)}}
 h1,h2{font-family:Impact,'Arial Narrow',sans-serif;letter-spacing:2px;color:var(--g);margin:0 0 12px;text-transform:uppercase}
-h1{font-size:2rem;text-shadow:0 0 14px #b7ff0080}
+h1{font-size:2rem;text-shadow:0 0 14px #d7193680}
 input,button{font:inherit;width:100%;padding:12px;margin:6px 0;background:var(--k);color:var(--w);border:1px solid var(--p)}
 button{cursor:pointer;background:var(--p);border-color:var(--g);text-align:left}
 button:hover:not(:disabled){background:var(--r)}
 button:disabled{opacity:.5;cursor:default}
 .c{text-align:center}.opt.sel{background:var(--r)}
 .ok{animation:okf .7s}.bad{animation:badf .7s}
-@keyframes okf{50%{box-shadow:0 0 50px var(--g)}}
+@keyframes okf{50%{box-shadow:0 0 50px var(--w)}}
 @keyframes badf{50%{box-shadow:0 0 50px var(--r)}}
 #hud{position:fixed;top:8px;left:12px;right:12px;z-index:3;font-family:Impact,sans-serif;color:var(--g);text-shadow:2px 2px #000;display:flex;justify-content:space-between;pointer-events:none}
 #hud button{width:auto;pointer-events:auto;padding:4px 12px;margin:0}
@@ -123,10 +123,10 @@ $('vm').oninput=e=>{vol.m=+e.target.value;setM()};$('vs').oninput=e=>vol.s=+e.ta
 
 // ====== MUNDOS ======
 const W=[
-{n:'A Floresta dos Esquecidos',bg:0x210B38,fog:0x4a1a6e,acc:0xB7FF00,en:['ghost','pump'],note:'"Se você está lendo isto, a carta chegou até você. O laboratório registra tudo. — M."'},
+{n:'A Floresta dos Esquecidos',bg:0x210B38,fog:0x4a1a6e,acc:0xFF4D6A,en:['ghost','pump'],note:'"Se você está lendo isto, a carta chegou até você. O laboratório registra tudo. — M."'},
 {n:'O Cemitério das Almas',bg:0x1a0a1c,fog:0x5a1030,acc:0xD71936,en:['ghost','bat'],note:'Um bilhete úmido: "Cada erro alimenta o caldeirão. Cada acerto o enfraquece."'},
-{n:'O Pântano Tóxico',bg:0x0d1a12,fog:0x2a5a10,acc:0xB7FF00,en:['slime','bat'],note:'Diário de Mortimer: "A substância não escapou. Eu a deixei sair."'},
-{n:'O Laboratório Proibido',bg:0x120b24,fog:0x3a1a6e,acc:0xB7FF00,en:['slime','ghost','pump'],note:'Etiqueta num frasco: "Hollow Creek — amostra 1. Ainda respira."'},
+{n:'O Pântano Tóxico',bg:0x0d1a12,fog:0x2a5a10,acc:0xFF4D6A,en:['slime','bat'],note:'Diário de Mortimer: "A substância não escapou. Eu a deixei sair."'},
+{n:'O Laboratório Proibido',bg:0x120b24,fog:0x3a1a6e,acc:0xFF4D6A,en:['slime','ghost','pump'],note:'Etiqueta num frasco: "Hollow Creek — amostra 1. Ainda respira."'},
 {n:'O Castelo de Mortimer',bg:0x14050c,fog:0x6a1020,acc:0xD71936,en:['ghost','pump','bat','slime'],note:'Vitral vermelho, uma inscrição: "O último caldeirão precisa de um último aluno."'}];
 
 // ====== TEXTURAS (pixel art procedural) ======
@@ -137,21 +137,21 @@ function drawP(g,o){const b=o.b||0,l=o.l||0,q=o.sq?o.sq*2:0;
  g.fillStyle(0xD71936);g.fillRect(6,13+b+q,12,13-b-q);
  if(o.a==1){g.fillRect(3,7+b,3,7);g.fillRect(18,7+b,3,7)}else if(o.a==2){g.fillRect(18,12,6,3);g.fillRect(3,15,3,7)}else{g.fillRect(3,14+b+q,3,7);g.fillRect(18,14+b+q,3,7)}
  g.fillStyle(0xE8E2DC);g.fillRect(7,5+b+q,10,8);
- g.fillStyle(o.h?0xD71936:0xB7FF00);g.fillRect(9,8+b+q,2,2);g.fillRect(14,8+b+q,2,2);
- g.fillStyle(0x210B38);g.fillRect(5,4+b+q,14,2);g.fillRect(8,0+b+q,8,4);g.fillStyle(0xB7FF00);g.fillRect(8,3+b+q,8,1)}
+ g.fillStyle(o.h?0xD71936:0xFF4D6A);g.fillRect(9,8+b+q,2,2);g.fillRect(14,8+b+q,2,2);
+ g.fillStyle(0x210B38);g.fillRect(5,4+b+q,14,2);g.fillRect(8,0+b+q,8,4);g.fillStyle(0xFF4D6A);g.fillRect(8,3+b+q,8,1)}
 function mkTex(s,wi){
  for(const n in PF)PF[n].forEach((o,i)=>tx(s,'p_'+n+'_'+i,24,32,g=>drawP(g,o)));
  [0,1].forEach(i=>{
   tx(s,'e_ghost_'+i,20,20,g=>{g.fillStyle(0xE8E2DC);g.fillRect(2,2,16,14);g.fillRect(4,0,12,2);for(let x=0;x<4;x++)g.fillRect(2+x*4,16,4,i?(x%2?4:2):(x%2?2:4));g.fillStyle(0x09070D);g.fillRect(5,6,3,4);g.fillRect(12,6,3,4)});
-  tx(s,'e_pump_'+i,20,20,g=>{g.fillStyle(0xe8791a);g.fillRect(1,5,18,14);g.fillRect(3,3,14,2);g.fillStyle(0x1a5a10);g.fillRect(9,0,3,4);g.fillStyle(0xB7FF00);g.fillRect(4,9,4,4);g.fillRect(12,9,4,4);g.fillRect(6,15+i,8,2)});
+  tx(s,'e_pump_'+i,20,20,g=>{g.fillStyle(0xe8791a);g.fillRect(1,5,18,14);g.fillRect(3,3,14,2);g.fillStyle(0x1a5a10);g.fillRect(9,0,3,4);g.fillStyle(0xFF4D6A);g.fillRect(4,9,4,4);g.fillRect(12,9,4,4);g.fillRect(6,15+i,8,2)});
   tx(s,'e_bat_'+i,22,12,g=>{g.fillStyle(0x19151F);g.fillRect(8,3,6,7);g.fillStyle(0x4a1a6e);if(i){g.fillRect(0,0,8,4);g.fillRect(14,0,8,4)}else{g.fillRect(0,5,8,4);g.fillRect(14,5,8,4)}g.fillStyle(0xD71936);g.fillRect(9,5,1,1);g.fillRect(12,5,1,1)});
-  tx(s,'e_slime_'+i,20,16,g=>{g.fillStyle(0xB7FF00);g.fillRect(1,6+i,18,10-i);g.fillRect(4,3+i,12,3);g.fillStyle(0x09070D);g.fillRect(5,8+i,3,3);g.fillRect(12,8+i,3,3);g.fillStyle(0x210B38);g.fillRect(8,13,4,2)})});
+  tx(s,'e_slime_'+i,20,16,g=>{g.fillStyle(0xFF4D6A);g.fillRect(1,6+i,18,10-i);g.fillRect(4,3+i,12,3);g.fillStyle(0x09070D);g.fillRect(5,8+i,3,3);g.fillRect(12,8+i,3,3);g.fillStyle(0x210B38);g.fillRect(8,13,4,2)})});
  tx(s,'tile'+wi,16,16,g=>{g.fillStyle(0x19151F);g.fillRect(0,0,16,16);g.fillStyle(0x2a2233);g.fillRect(0,6,16,1);g.fillRect(8,11,8,1);g.fillStyle(W[wi].acc);g.fillRect(0,0,16,3)});
  tx(s,'mv',96,14,g=>{g.fillStyle(0x3a2a50);g.fillRect(0,0,96,14);g.fillStyle(0xD71936);g.fillRect(0,0,96,3);g.fillRect(0,0,4,14);g.fillRect(92,0,4,14)});
- tx(s,'dis',96,14,g=>{g.fillStyle(0x2a2233);g.fillRect(0,0,96,14);g.fillStyle(0xB7FF00);g.fillRect(0,0,96,2);g.fillStyle(0x09070D);for(let x=10;x<96;x+=22)g.fillRect(x,3,2,9)});
+ tx(s,'dis',96,14,g=>{g.fillStyle(0x2a2233);g.fillRect(0,0,96,14);g.fillStyle(0xFF4D6A);g.fillRect(0,0,96,2);g.fillStyle(0x09070D);for(let x=10;x<96;x+=22)g.fillRect(x,3,2,9)});
  tx(s,'spk',16,12,g=>{g.fillStyle(0xD71936);g.fillTriangle(0,12,8,0,16,12)});
  tx(s,'lamp',16,34,g=>{g.fillStyle(0x19151F);g.fillRect(7,8,2,26);g.fillRect(3,6,10,3);g.fillStyle(0x6a6a6a);g.fillRect(4,0,8,7)});
- tx(s,'caul',44,40,g=>{g.fillStyle(0x09070D);g.fillRect(4,10,36,28);g.fillRect(0,8,44,4);g.fillStyle(0xB7FF00);g.fillRect(6,10,32,4);g.fillStyle(0x19151F);g.fillRect(8,38,6,2);g.fillRect(30,38,6,2)});
+ tx(s,'caul',44,40,g=>{g.fillStyle(0x09070D);g.fillRect(4,10,36,28);g.fillRect(0,8,44,4);g.fillStyle(0xFF4D6A);g.fillRect(6,10,32,4);g.fillStyle(0x19151F);g.fillRect(8,38,6,2);g.fillRect(30,38,6,2)});
  tx(s,'note',14,16,g=>{g.fillStyle(0xE8E2DC);g.fillRect(0,0,14,16);g.fillStyle(0x210B38);for(let y=3;y<14;y+=3)g.fillRect(2,y,10,1)});
 }
 function mkAnims(s){
@@ -242,7 +242,7 @@ class L extends Phaser.Scene{
    else this.hurt()});
   this.cameras.main.setBounds(0,0,LW,H);this.cameras.main.startFollow(this.p,true,.12,.12);
   this.k=this.input.keyboard.addKeys('W,A,S,D,SPACE,SHIFT,E,P,UP,LEFT,RIGHT,ESC');
-  this.pr=this.add.text(0,0,'Pressione E',{fontFamily:'Impact',fontSize:'18px',color:'#B7FF00'}).setOrigin(.5).setVisible(false);
+  this.pr=this.add.text(0,0,'Pressione E',{fontFamily:'Impact',fontSize:'18px',color:'#FF4D6A'}).setOrigin(.5).setVisible(false);
   hud(this);$('hud').style.display='flex';$('pb').onclick=()=>this.pauseToggle();
   this.cameras.main.fadeIn(600);
   if(wi==0&&!S.introDone){S.introDone=1;this.pauseG();msgBox('Hollow Creek','Uma carta sem remetente trouxe você até aqui. O portão do laboratório se fecha atrás de você. Encontre bilhetes, acenda lanternas e chegue ao caldeirão de cada setor.',()=>this.resumeG())}
