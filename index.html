@@ -65,14 +65,19 @@ textarea{min-height:140px;font-family:ui-monospace,monospace;font-size:.8rem}
 <div id="app"></div><div id="toast" role="status"></div>
 <script>
 "use strict";
+/* =====================================================================
+   CONFIGURAÇÃO DO SERVIDOR: cole abaixo a URL e a chave ANON (pública) do Supabase.
+   Supabase > Project Settings > API. NUNCA use a chave service_role aqui.
+   ===================================================================== */
+const PRESET={url:"COLE_AQUI_A_URL_DO_SUPABASE",key:"COLE_AQUI_A_CHAVE_ANON"};
+const PRESET_OK=!/COLE_AQUI/.test(PRESET.url+PRESET.key)&&/^https?:\/\//.test(PRESET.url);
 /* ===== util ===== */
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ls={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}};
 let sb,me=null;
-const PRESET={url:"",key:""}; /* opcional: preencha para dispensar o link com #c= */
 const H=(()=>{try{return JSON.parse(atob((location.hash.match(/^#c=(.+)$/)||[])[1]||""))}catch{return{}}})();
-let cfg={url:PRESET.url||H.u||ls.get("ue_url")||"",key:PRESET.key||H.k||ls.get("ue_key")||""};
+let cfg=PRESET_OK?{url:PRESET.url,key:PRESET.key}:{url:H.u||ls.get("ue_url")||"",key:H.k||ls.get("ue_key")||""};
 const semAcento=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 const problema=s=>/[\u0300-\u036f]/.test(s.normalize("NFD"))?"acento":/[^A-Za-z ]/.test(s)?"simbolo":null;
 const MSG={nao_autorizado:"Você não está autorizado nesta avaliação.",ainda_nao_aberta:"A avaliação ainda não abriu.",periodo_encerrado:"O período da avaliação terminou.",avaliacao_indisponivel:"Avaliação indisponível.",ja_concluida:"Você já realizou esta avaliação.",aluno_inativo:"Cadastro inativo. Fale com o professor.",aluno_nao_encontrado:"Esta conta não tem cadastro de aluno. Fale com o professor.",acesso_negado:"Acesso negado.","Invalid login credentials":"Usuário ou senha incorretos.","Failed to fetch":"Sem conexão. Seu progresso confirmado está salvo; tente de novo."};
@@ -164,8 +169,9 @@ async function viewHome(){
     concluida:`<button class="sm alt" data-res="${a.avaliacao_id}">Ver resultado</button>`,
     aguardando:`<span class="mut">Abre em ${fmtD(a.data_inicio)}</span>`,encerrada:`<span class="mut">Período encerrado</span>`,indisponivel:`<span class="mut">Indisponível</span>`}[a.estado]);
   view(`<div class="wrap"><div class="top"><div><h2>Olá, ${esc(me.nome)}</h2><span class="mut">${esc(me.turma||"")}</span></div><button class="sm alt" id="lo">Não sou eu</button></div>
-  ${list.length?list.map(a=>`<div class="box"><h3>${esc(a.titulo)}</h3><p class="mut">${esc(a.descricao||"")}<br>Disponível de ${fmtD(a.data_inicio)} até ${fmtD(a.data_fim)}</p>${act(a)}</div>`).join(""):'<div class="box mut">Nenhuma avaliação liberada para você ainda.</div>'}</div>`);
+  ${list.length?list.map(a=>`<div class="box"><h3>${esc(a.titulo)}</h3><p class="mut">${esc(a.descricao||"")}<br>Disponível de ${fmtD(a.data_inicio)} até ${fmtD(a.data_fim)}</p>${act(a)}</div>`).join(""):'<div class="box mut">Nenhuma avaliação liberada para você ainda. Peça ao professor para conferir se a prova está publicada e se o seu nome está na lista de autorizados.<br><button class="sm alt" id="rf" style="margin-top:8px">Atualizar</button></div>'}</div>`);
   $("#lo").onclick=logout;
+  if($("#rf"))$("#rf").onclick=viewHome;
   $$("[data-play]").forEach(b=>b.onclick=()=>play(b.dataset.play,b));
   $$("[data-res]").forEach(b=>b.onclick=()=>showFinal(b.dataset.res));
 }
@@ -364,16 +370,16 @@ async function pGeral(){
 }
 const loc=s=>s?new Date(new Date(s)-new Date(s).getTimezoneOffset()*6e4).toISOString().slice(0,16):"";
 async function pAval(){
-  const[{data:avs,error:e1},{data:tur}]=await Promise.all([sb.from("avaliacoes").select("*").order("created_at",{ascending:false}),sb.from("turmas").select("*").order("nome")]);
-  if(e1)throw e1;
+  const[{data:avs,error:e1},{data:tur},{data:aut}]=await Promise.all([sb.from("avaliacoes").select("*").order("created_at",{ascending:false}),sb.from("turmas").select("*").order("nome"),sb.from("alunos_autorizados").select("avaliacao_id")]);
+  if(e1)throw e1;const cnt={};(aut||[]).forEach(x=>cnt[x.avaliacao_id]=(cnt[x.avaliacao_id]||0)+1);
   $("#pn").innerHTML=`<div class="box"><h3>Nova avaliação</h3><div class="row"><label>Título<input id="nt"></label><label>Vidas (1 a 10)<input id="nv" type="number" min="1" max="10" value="5"></label><label>Nota máxima<input id="nx" type="number" min="1" value="10"></label></div>
   <div class="row"><label>Turma<select id="ntu"><option value="">Qualquer</option>${tur.map(t=>`<option value="${t.id}">${esc(t.nome)}</option>`).join("")}</select></label><label>Ao perder todas as vidas<select id="nr"><option value="continuar">Continua respondendo</option><option value="imediato">Encerra a prova</option></select></label></div>
   <label>Descrição<input id="nd"></label><button class="btn" id="nc">Criar e cadastrar questões</button>
   <details style="margin-top:12px"><summary class="mut">Importar 10 questões por JSON (avançado)</summary><p class="mut"><button class="link" id="ex" style="margin:0">Inserir modelo</button></p><textarea id="js" spellcheck="false"></textarea><button class="btn" id="im">Criar como rascunho</button></details></div>
-  ${avs.map(a=>`<div class="box"><h3>${esc(a.titulo)} <span class="mut">(${a.status})</span></h3><p class="mut">${a.quantidade_vidas} vidas · ${a.regra_encerramento=="imediato"?"encerra ao zerar vidas":"continua sem vidas"} · nota máx. ${a.nota_maxima}</p>
+  ${avs.map(a=>`<div class="box"><h3>${esc(a.titulo)} <span class="mut">(${a.status})</span></h3><p class="mut">${a.quantidade_vidas} vidas · ${a.regra_encerramento=="imediato"?"encerra ao zerar vidas":"continua sem vidas"} · nota máx. ${a.nota_maxima}</p>${avInfo(a,cnt[a.id]||0)}
   <div class="row"><label>Abertura<input type="datetime-local" data-d="i" value="${loc(a.data_inicio)}"></label><label>Encerramento<input type="datetime-local" data-d="f" value="${loc(a.data_fim)}"></label>
   <label>Autorizar turma<select data-tu><option value="">Selecione…</option>${tur.map(t=>`<option value="${t.id}">${esc(t.nome)}</option>`).join("")}</select></label></div>
-  <div class="row" style="margin-top:8px" data-id="${a.id}"><button class="sm" data-a="pub" ${a.status!="rascunho"?"disabled":""}>Publicar</button><button class="sm" data-a="q">Editar questões</button><button class="sm alt" data-a="aut">Autorizar turma</button><button class="sm alt" data-a="enc" ${a.status=="encerrada"?"disabled":""}>Encerrar</button></div></div>`).join("")||'<div class="box mut">Nenhuma avaliação criada.</div>'}`;
+  <div class="row" style="margin-top:8px" data-id="${a.id}"><button class="sm" data-a="pub" ${a.status!="rascunho"?"disabled":""}>Publicar</button><button class="sm" data-a="q">Editar questões</button><button class="sm" data-a="who">Escolher alunos autorizados</button><button class="sm alt" data-a="aut">Autorizar turma inteira</button><button class="sm alt" data-a="enc" ${a.status=="encerrada"?"disabled":""}>Encerrar</button></div></div>`).join("")||'<div class="box mut">Nenhuma avaliação criada.</div>'}`;
   $("#ex").onclick=()=>{const q=(e,a,c)=>({enunciado:e,alternativas:a,correta:c,pontuacao:1,categoria:"Química geral"});
     const l=[q("Qual é o símbolo químico do sódio?",["Na","S","So","N"],0),q("Quantos prótons tem o átomo de carbono?",["4","6","8","12"],1),q("Qual ligação ocorre entre sódio e cloro no NaCl?",["Covalente","Metálica","Iônica","Dipolo"],2)];
     while(l.length<10)l.push(q("Edite a questão "+(l.length+1),["Alternativa A","Alternativa B","Alternativa C","Alternativa D"],0));
@@ -383,11 +389,31 @@ async function pAval(){
     const{data,error}=await sb.from("avaliacoes").insert({titulo:t,descricao:$("#nd").value.trim()||null,quantidade_vidas:+$("#nv").value||5,nota_maxima:+$("#nx").value||10,regra_encerramento:$("#nr").value,turma_id:$("#ntu").value||null}).select().single();
     if(error)return toast(errMsg(error));pQuest(data.id)};
   $$("[data-a]").forEach(b=>b.onclick=async()=>{const box=b.closest(".box"),id=b.parentElement.dataset.id,a=b.dataset.a;
-    try{if(a=="q")return pQuest(id);if(a=="pub"){const i=box.querySelector('[data-d="i"]').value,f=box.querySelector('[data-d="f"]').value;if(!i||!f)return toast("Defina abertura e encerramento.");
+    try{if(a=="q")return pQuest(id);if(a=="who")return autorizacoes(id,avs.find(x=>x.id==id).titulo,pAval);if(a=="pub"){const i=box.querySelector('[data-d="i"]').value,f=box.querySelector('[data-d="f"]').value;if(!i||!f)return toast("Defina abertura e encerramento.");
         const{error}=await sb.from("avaliacoes").update({data_inicio:new Date(i).toISOString(),data_fim:new Date(f).toISOString(),status:"publicada"}).eq("id",id);if(error)throw error;toast("Publicada.")}
-      if(a=="aut"){const t=box.querySelector("[data-tu]").value;if(!t)return toast("Escolha uma turma.");toast((await rpc("autorizar_turma",{p_avaliacao_id:id,p_turma_id:t}))+" aluno(s) autorizado(s).")}
+      if(a=="aut"){const t=box.querySelector("[data-tu]").value;if(!t)return toast("Escolha uma turma.");{const n=await rpc("autorizar_turma",{p_avaliacao_id:id,p_turma_id:t});toast(n?n+" aluno(s) autorizado(s).":"Nenhum aluno novo para autorizar: cadastre os alunos nessa turma antes, ou todos já estavam autorizados.")}}
       if(a=="enc"){if(!confirm("Encerrar a avaliação? Tentativas em andamento serão fechadas com a nota parcial."))return;await rpc("encerrar_avaliacao",{p_avaliacao_id:id});toast("Encerrada.")}
       pAval()}catch(e){toast(errMsg(e))}});
+}
+const warn=t=>`<p style="color:#ff8a9a;margin:.3rem 0">${t}</p>`;
+function avInfo(a,n){
+  return (a.status=="rascunho"?warn("Rascunho: os alunos só enxergam provas publicadas."):a.status=="publicada"&&!n?warn("Publicada, mas nenhum aluno autorizado: ninguém verá esta prova."):"")+`<p class="mut" style="margin:.3rem 0">${n} aluno(s) autorizado(s)</p>`;
+}
+async function autorizacoes(avId,titulo,reload){
+  const[{data:al,error},{data:au}]=await Promise.all([sb.from("alunos").select("id,nome,turmas(nome)").eq("ativo",true).order("nome"),sb.from("alunos_autorizados").select("aluno_id").eq("avaliacao_id",avId)]);
+  if(error)return toast(errMsg(error));
+  const has=new Set((au||[]).map(x=>x.aluno_id)),m=document.createElement("div");m.className="ov";m.style.position="fixed";
+  m.innerHTML=`<div class="qbox" style="max-height:92vh;overflow:auto"><h3>${esc(titulo)}: quem pode fazer</h3><p class="mut">Marque os alunos autorizados e salve.</p>
+  <div class="row"><button class="sm alt" id="a1">Marcar todos</button><button class="sm alt" id="a0">Desmarcar todos</button></div>
+  <div id="lst" style="margin:10px 0">${al.map(a=>`<label style="display:flex;gap:8px;align-items:center;margin:.3rem 0;color:var(--w)"><input type="checkbox" style="width:auto;margin:0" value="${a.id}" ${has.has(a.id)?"checked":""}> ${esc(a.nome)} <span class="mut">${esc(a.turmas?.nome||"")}</span></label>`).join("")||'<p class="mut">Nenhum aluno cadastrado ainda.</p>'}</div>
+  <div class="row"><button class="sm alt" id="ax">Cancelar</button><button class="btn" id="as" style="margin:0">Salvar autorizações</button></div></div>`;
+  document.body.appendChild(m);const boxes=()=>[...m.querySelectorAll("#lst input")];
+  m.querySelector("#a1").onclick=()=>boxes().forEach(b=>b.checked=true);m.querySelector("#a0").onclick=()=>boxes().forEach(b=>b.checked=false);
+  m.querySelector("#ax").onclick=()=>m.remove();
+  m.querySelector("#as").onclick=async()=>{const now=new Set(boxes().filter(b=>b.checked).map(b=>b.value)),add=[...now].filter(x=>!has.has(x)),del=[...has].filter(x=>!now.has(x));
+    if(add.length){const{error}=await sb.from("alunos_autorizados").insert(add.map(id=>({avaliacao_id:avId,aluno_id:id})));if(error)return toast(errMsg(error))}
+    if(del.length){const{error}=await sb.from("alunos_autorizados").delete().eq("avaliacao_id",avId).in("aluno_id",del);if(error)return toast(errMsg(error))}
+    m.remove();toast("Autorizações salvas: "+now.size+" aluno(s).");reload()};
 }
 async function importar(txt){
   let j;try{j=JSON.parse(txt)}catch{throw new Error("JSON inválido.")}
@@ -427,8 +453,8 @@ async function pProf(){
   $$("[data-rm]").forEach(b=>b.onclick=async()=>{if(!confirm("Remover o acesso deste professor?"))return;try{await rpc("remover_professor",{p_id:b.dataset.rm});pProf()}catch(e){toast(errMsg(e))}});
 }
 async function pEnv(){
-  const link=location.protocol=="file:"?"":location.origin+location.pathname+"#c="+btoa(JSON.stringify({u:cfg.url,k:cfg.key}));
-  $("#pn").innerHTML=`<div class="box"><h3>Link para os alunos</h3>${link?`<p class="mut">Envie este link. Ele já leva a configuração do servidor. O aluno só digita nome completo (sem acentos) e turma.</p><textarea id="lk" readonly style="min-height:80px">${esc(link)}</textarea><button class="btn" id="cp">Copiar link</button>`:"<p>Esta página está aberta como arquivo local, então o link não funcionaria para os alunos. Publique o index.html em uma hospedagem (Netlify, GitHub Pages, Vercel…), abra o painel por lá e volte a esta aba.</p>"}</div>
+  const link=location.protocol=="file:"?"":location.origin+location.pathname+(PRESET_OK?"":"#c="+btoa(JSON.stringify({u:cfg.url,k:cfg.key})));
+  $("#pn").innerHTML=`<div class="box"><h3>Link para os alunos</h3>${link?`<p class="mut">Envie este link.${PRESET_OK?"":" Ele já leva a configuração do servidor."} O aluno só digita nome completo (sem acentos) e turma.</p><textarea id="lk" readonly style="min-height:80px">${esc(link)}</textarea><button class="btn" id="cp">Copiar link</button>`:"<p>Esta página está aberta como arquivo local, então o link não funcionaria para os alunos. Publique o index.html em uma hospedagem (Netlify, GitHub Pages, Vercel…), abra o painel por lá e volte a esta aba.</p>"}</div>
   <div class="box"><h3>Antes de enviar</h3><p class="mut">1. No Supabase, em Authentication > Sign In / Providers, ative “Allow anonymous sign-ins”.<br>2. Cadastre a turma e os alunos, com nomes sem acento.<br>3. Crie a avaliação, cadastre as 10 questões, autorize a turma e publique.</p></div>`;
   if($("#cp"))$("#cp").onclick=async()=>{try{await navigator.clipboard.writeText(link);toast("Link copiado.")}catch{$("#lk").select();toast("Selecione e copie o link.")}};
 }
