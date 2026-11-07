@@ -100,7 +100,7 @@ const CFG={URL:'COLE_AQUI_A_URL_DO_SUPABASE',KEY:'COLE_AQUI_A_ANON_KEY'};
 const $=id=>document.getElementById(id);
 async function rpc(fn,args){
   if(CFG.URL.startsWith('COLE'))throw new Error('Configure CFG.URL e CFG.KEY no início do script.');
-  const r=await fetch(CFG.URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:CFG.KEY,Authorization:'Bearer '+CFG.KEY,'Content-Type':'application/json'},body:JSON.stringify(args)});
+  const r=await fetch(CFG.URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:CFG.KEY,...(CFG.KEY.startsWith('sb_')?{}:{Authorization:'Bearer '+CFG.KEY}),'Content-Type':'application/json'},body:JSON.stringify(args)});
   const j=await r.json().catch(()=>null);
   if(!r.ok)throw new Error((j&&j.message)||'Erro de comunicação');
   return j;
@@ -384,7 +384,7 @@ const fmt=n=>n==null?'—':Number(n).toFixed(1).replace('.',',');
 const dt=s=>s?new Date(s).toLocaleString('pt-BR'):'—';
 let SS=JSON.parse(localStorage.getItem('ss')||'null');
 const ST={exams:[],ex:null,mode:'in'};
-const HD=t=>({apikey:CFG.KEY,Authorization:'Bearer '+(t||CFG.KEY),'Content-Type':'application/json'});
+const HD=t=>({apikey:CFG.KEY,...(t?{Authorization:'Bearer '+t}:CFG.KEY.startsWith('sb_')?{}:{Authorization:'Bearer '+CFG.KEY}),'Content-Type':'application/json'});
 async function auth(p,b){
  if(CFG.URL.startsWith('COLE'))throw new Error('Configure CFG.URL e CFG.KEY no início do script.');
  const r=await fetch(CFG.URL+'/auth/v1/'+p,{method:'POST',headers:HD(),body:JSON.stringify(b)});
@@ -554,7 +554,7 @@ boot();
 </script>
 <script>
 // ====== CONFIGURAÇÃO ÚNICA: cole aqui a URL e a chave anon public do Supabase ======
-const CFG={URL:'COLE_AQUI_A_URL_DO_SUPABASE',KEY:'COLE_AQUI_A_ANON_KEY'};
+const CFG={URL:'https://afrxuvguskjwtaphodol.supabase.co',KEY:'sb_publishable_cVOmN_xZSJqceP96ATiLkw_3X4xnhWS'};
 // ====================================================================================
 const $=id=>document.getElementById(id);
 let cur='';
