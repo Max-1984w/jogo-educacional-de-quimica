@@ -63,9 +63,9 @@ button:disabled{opacity:.5;cursor:default}
 
 <div class="ov on" id="login"><div class="box">
  <h1>Halloween<br>O Último Caldeirão</h1>
- <p>Hollow Creek desaparece a cada noite de Halloween. Identifique-se para entrar no laboratório.</p>
+ <p>Hollow Creek desaparece a cada noite de Halloween. Digite o código da prova (passado pelo professor) e seu nome completo.</p>
  <input id="ic" placeholder="Código da avaliação" autocomplete="off">
- <input id="is" placeholder="Seu código de aluno" autocomplete="off">
+ <input id="is" placeholder="Código de aluno (só se o professor deu um)" autocomplete="off">
  <input id="in" placeholder="Nome completo" autocomplete="off">
  <button id="go" class="c">Entrar no laboratório</button><p id="err"></p>
  <p style="font-size:.8rem;opacity:.7">← → / A D mover · Espaço pular (duplo) · Shift correr · E interagir · P pausa</p>
@@ -468,7 +468,7 @@ async qs(){CUR='qs';
 // ---- Alunos ----
 async studs(){CUR='studs';
  const s=await api('GET','students?select=*&order=full_name');
- $('#v').innerHTML=`<h2>Alunos</h2><div class="card"><h3>Adicionar</h3><div class="row"><input id="sn" placeholder="Nome completo" style="flex:2"><input id="sc" placeholder="Código (vazio = gerar)" style="flex:1"><button onclick="sAdd()">Adicionar</button></div>
+ $('#v').innerHTML=`<h2>Alunos</h2><p>Opcional. A prova é da turma: os alunos entram só com o <b>código da prova</b> e o nome completo, e aparecem sozinhos em Resultados. Cadastre aqui apenas se quiser um código individual por aluno.</p><div class="card"><h3>Adicionar</h3><div class="row"><input id="sn" placeholder="Nome completo" style="flex:2"><input id="sc" placeholder="Código (vazio = gerar)" style="flex:1"><button onclick="sAdd()">Adicionar</button></div>
  <label>Ou cole vários (um por linha: Nome; código — o código é opcional)</label><textarea id="sb"></textarea><button onclick="sBulk()">Importar lista</button><p id="msg"></p></div>
  <table><tr><th>Nome</th><th>Código de acesso</th><th></th></tr>${s.map(x=>`<tr><td>${esc(x.full_name)}</td><td><code>${esc(x.code)}</code></td><td><button class=s onclick="sDel('${x.id}')">Excluir</button></td></tr>`).join('')}</table>`},
 
