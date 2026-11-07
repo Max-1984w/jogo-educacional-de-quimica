@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel do Professor — O Último Caldeirão</title>
+<style>
+:root{--p:#210B38;--r:#FF4D6A;--g:#D71936;--k:#09070D;--d:#19151F;--w:#E8E2DC}
+*{box-sizing:border-box}
+body{margin:0;background:var(--k);color:var(--w);font:15px/1.45 Georgia,serif}
+h1,h2,h3{font-family:Impact,'Arial Narrow',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--g);margin:0 0 12px}
+input,select,textarea,button{font:inherit;color:var(--w);background:var(--k);border:1px solid #3a2a50;padding:9px 10px;border-radius:2px;max-width:100%}
+textarea{width:100%;min-height:80px}
+label{display:block;font-size:.8rem;opacity:.8;margin:8px 0 2px}
+button{cursor:pointer;background:var(--p);border-color:var(--g)}button:hover{background:var(--r)}
+button.s{padding:4px 9px;font-size:.8rem}
+#auth{max-width:420px;margin:8vh auto;padding:24px;background:var(--d);border:2px solid var(--g)}
+#auth input{width:100%}
+#app{display:none;min-height:100vh}
+nav{position:fixed;left:0;top:0;bottom:0;width:190px;background:var(--d);border-right:1px solid var(--p);padding:16px 10px}
+nav button{display:block;width:100%;text-align:left;margin:4px 0}
+nav button.on{background:var(--r)}
+main{margin-left:190px;padding:22px;max-width:1100px}
+@media(max-width:760px){nav{position:static;width:auto;display:flex;flex-wrap:wrap;gap:4px}nav button{width:auto}main{margin:0;padding:14px}}
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th,td{border-bottom:1px solid #2a2233;padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--g);font-size:.8rem;text-transform:uppercase}
+tr.cl:hover{background:var(--p);cursor:pointer}
+.card{background:var(--d);border:1px solid var(--p);padding:14px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi b{display:block;font:2rem Impact,sans-serif;color:var(--g)}
+.bar{display:flex;align-items:flex-end;gap:8px;height:130px;margin-top:8px}
+.bar div{flex:1;background:var(--r);text-align:center;font-size:.75rem;color:#fff;min-height:2px}
+.ok{color:var(--w)}.er{color:var(--r)}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#msg{color:var(--r);min-height:1.3em}
+@media print{nav,.np{display:none!important}main{margin:0}body{background:#fff;color:#000}h1,h2,h3,th{color:#000}.card{border-color:#999;background:#fff}td,th{border-color:#999}}
+</style></head><body>
+
+<div id="auth">
+ <h2 id="at">Painel do Professor</h2>
+ <label>E-mail</label><input id="em" type="email" autocomplete="username">
+ <label>Senha</label><input id="pw" type="password" autocomplete="current-password">
+ <div id="invw" style="display:none"><label>Código de convite de professor</label><input id="inv"></div>
+ <p><button id="ab" style="width:100%">Entrar</button></p>
+ <p id="msg"></p>
+ <p><a href="#" id="tg" style="color:var(--g)">Criar conta de professor</a></p>
+</div>
+
+<div id="app">
+ <nav>
+  <h3>Caldeirão</h3>
+  <button data-v="dash">Painel</button><button data-v="exams">Provas</button><button data-v="qs">Questões</button>
+  <button data-v="studs">Alunos</button><button data-v="res">Resultados</button><button id="out">Sair</button>
+ </nav>
+ <main id="v"></main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ====== CONFIGURAÇÃO: mesmos dados do jogo (Settings > API) ======
+const CFG={URL:'COLE_AQUI_A_URL_DO_SUPABASE',KEY:'COLE_AQUI_A_ANON_KEY'};
+// =================================================================
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>n==null?'—':Number(n).toFixed(1).replace('.',',');
+const dt=s=>s?new Date(s).toLocaleString('pt-BR'):'—';
+let SS=JSON.parse(localStorage.getItem('ss')||'null');
+const ST={exams:[],ex:null,mode:'in'};
+const HD=t=>({apikey:CFG.KEY,Authorization:'Bearer '+(t||CFG.KEY),'Content-Type':'application/json'});
+async function auth(p,b){
+ if(CFG.URL.startsWith('COLE'))throw new Error('Configure CFG.URL e CFG.KEY no início do script.');
+ const r=await fetch(CFG.URL+'/auth/v1/'+p,{method:'POST',headers:HD(),body:JSON.stringify(b)});
+ const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.msg||j.error_description||j.message||'Erro de autenticação');return j}
+async function refresh(){SS=await auth('token?grant_type=refresh_token',{refresh_token:SS.refresh_token});localStorage.setItem('ss',JSON.stringify(SS))}
+async function api(m,p,b,pref,retry=1){
+ const r=await fetch(CFG.URL+'/rest/v1/'+p,{method:m,headers:{...HD(SS&&SS.access_token),Prefer:pref||'return=representation'},body:b!==undefined?JSON.stringify(b):undefined});
+ if(r.status==401&&retry&&SS){try{await refresh()}catch(e){logout();throw new Error('Sessão expirada')}return api(m,p,b,pref,0)}
+ const t=await r.text();let j=null;try{j=t?JSON.parse(t):null}catch(e){}
+ if(!r.ok)throw new Error((j&&(j.message||j.msg))||'Erro '+r.status);return j}
+const rpc=(f,a)=>api('POST','rpc/'+f,a||{});
+
+// ====== AUTENTICAÇÃO / CONTA ======
+$('#tg').onclick=e=>{e.preventDefault();ST.mode=ST.mode=='in'?'up':'in';const up=ST.mode=='up';
+ $('#invw').style.display=up?'block':'none';$('#ab').textContent=up?'Criar conta':'Entrar';$('#tg').textContent=up?'Já tenho conta':'Criar conta de professor';$('#msg').textContent=''};
+$('#ab').onclick=async()=>{
+ $('#msg').textContent='';const email=$('#em').value.trim(),password=$('#pw').value;
+ try{
+  if(ST.mode=='up'){
+   if(password.length<8)throw new Error('Use uma senha com 8 ou mais caracteres.');
+   if(!$('#inv').value)throw new Error('Informe o código de convite.');
+   const j=await auth('signup',{email,password});
+   if(!j.access_token){sessionStorage.setItem('inv',$('#inv').value);throw new Error('Conta criada. Confirme o e-mail, depois entre — o convite será aplicado no primeiro acesso.')}
+   SS=j;localStorage.setItem('ss',JSON.stringify(j));await rpc('register_teacher',{p_code:$('#inv').value});
+  }else{
+   SS=await auth('token?grant_type=password',{email,password});localStorage.setItem('ss',JSON.stringify(SS));
+   if(!(await rpc('is_teacher'))){const c=sessionStorage.getItem('inv')||prompt('Esta conta ainda não é de professor. Informe o código de convite:');
+    if(!c)throw new Error('Acesso restrito a professores.');await rpc('register_teacher',{p_code:c});sessionStorage.removeItem('inv')}
+  }
+  boot()
+ }catch(e){$('#msg').textContent=e.message;if(ST.mode=='in'&&SS&&!/convite|Convite/.test(e.message))logout(1)}};
+function logout(q){SS=null;localStorage.removeItem('ss');if(!q){$('#app').style.display='none';$('#auth').style.display='block'}}
+$('#out').onclick=()=>logout();
+async function boot(){
+ try{if(!SS)return;if(!(await rpc('is_teacher'))){logout(1);return}
+  $('#auth').style.display='none';$('#app').style.display='block';go('dash')}catch(e){logout(1)}}
+document.querySelectorAll('nav [data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
+async function go(v){document.querySelectorAll('nav [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v==v));
+ ST.exams=await api('GET','exams?select=*,questions(count)&order=created_at.desc');
+ if(!ST.ex||!ST.exams.find(e=>e.id==ST.ex))ST.ex=ST.exams[0]?.id||null;
+ try{await V[v]()}catch(e){$('#v').innerHTML='<p class=er>'+esc(e.message)+'</p>'}}
+const exSel=()=>`<select onchange="ST.ex=this.value;go(CUR)">${ST.exams.map(e=>`<option value="${e.id}" ${e.id==ST.ex?'selected':''}>${esc(e.name)} (${esc(e.code)})</option>`).join('')}</select>`;
+let CUR='dash';
+const noEx=()=>'<p>Crie uma prova primeiro (menu Provas).</p>';
+
+const V={
+// ---- Painel ----
+async dash(){CUR='dash';
+ const [st,at]=await Promise.all([api('GET','students?select=id'),api('GET','attempts?select=*,exams(max_score)&status=eq.finished')]);
+ const sc=at.map(a=>+a.score),pc=at.map(a=>{const t=a.correct_count+a.wrong_count+a.unanswered_count;return t?a.correct_count/t*100:0});
+ const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+ const bins=[0,0,0,0,0];pc.forEach(p=>bins[Math.min(4,p/20|0)]++);const mx=Math.max(1,...bins);
+ $('#v').innerHTML=`<h2>Painel</h2><div class="grid">
+ <div class="card kpi"><b>${st.length}</b>alunos cadastrados</div><div class="card kpi"><b>${at.length}</b>provas realizadas</div>
+ <div class="card kpi"><b>${fmt(avg(sc))}</b>média geral</div><div class="card kpi"><b>${at.length?fmt(Math.max(...sc)):'—'}</b>maior nota</div>
+ <div class="card kpi"><b>${at.length?fmt(Math.min(...sc)):'—'}</b>menor nota</div><div class="card kpi"><b>${pc.length?Math.round(avg(pc))+'%':'—'}</b>acertos (média)</div>
+ <div class="card kpi"><b>${at.length}</b>concluíram o jogo</div></div>
+ <div class="card"><h3>Distribuição do aproveitamento</h3><div class="bar">${bins.map((n,i)=>`<div style="height:${n/mx*100}%">${n}</div>`).join('')}</div>
+ <div class="bar" style="height:auto;margin:2px 0 0">${['0–20%','20–40%','40–60%','60–80%','80–100%'].map(t=>`<div style="background:none;color:#888">${t}</div>`).join('')}</div></div>`},
+
+// ---- Provas ----
+async exams(){CUR='exams';
+ $('#v').innerHTML=`<h2>Provas</h2><button onclick="exForm()">+ Nova prova</button><div id="f"></div>
+ <table><tr><th>Nome</th><th>Código</th><th>Nota máx.</th><th>Questões</th><th>Ativa</th><th></th></tr>
+ ${ST.exams.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.code)}</td><td>${fmt(e.max_score)}</td><td>${e.questions[0].count}</td><td>${e.active?'sim':'não'}</td>
+ <td class="row"><button class=s onclick="ST.ex='${e.id}';go('qs')">Questões</button><button class=s onclick="exForm('${e.id}')">Editar</button><button class=s onclick="exDel('${e.id}')">Excluir</button></td></tr>`).join('')}</table>`},
+
+// ---- Questões ----
+async qs(){CUR='qs';
+ if(!ST.ex){$('#v').innerHTML='<h2>Questões</h2>'+noEx();return}
+ ST.q=await api('GET',`questions?exam_id=eq.${ST.ex}&select=*,question_options(*),question_keys(correct_label)&order=world,position`);
+ const ex=ST.exams.find(e=>e.id==ST.ex),tw=ST.q.reduce((s,q)=>s+ +q.weight,0);
+ $('#v').innerHTML=`<h2>Questões</h2><div class="row">${exSel()}<button onclick="qForm()">+ Nova questão</button></div>
+ <p>${ST.q.length} questões · soma dos pesos ${fmt(tw)} · nota máxima ${fmt(ex.max_score)}</p><div id="f"></div>
+ ${[1,2,3,4,5].map(w=>{const l=ST.q.filter(q=>q.world==w);return l.length?`<h3>Mundo ${w}</h3>`+l.map(q=>`<div class="card"><b>#${q.position}</b> ${esc(q.statement)}
+ <div style="opacity:.8;font-size:.85rem">${esc(q.topic||'')} · dificuldade ${q.difficulty} · peso ${fmt(q.weight)} · correta: ${esc(q.question_keys?.correct_label||'—')}</div>
+ <div class="row np" style="margin-top:6px"><button class=s onclick="qForm('${q.id}')">Editar</button><button class=s onclick="qDel('${q.id}')">Excluir</button></div></div>`).join(''):''}).join('')}`},
+
+// ---- Alunos ----
+async studs(){CUR='studs';
+ const s=await api('GET','students?select=*&order=full_name');
+ $('#v').innerHTML=`<h2>Alunos</h2><div class="card"><h3>Adicionar</h3><div class="row"><input id="sn" placeholder="Nome completo" style="flex:2"><input id="sc" placeholder="Código (vazio = gerar)" style="flex:1"><button onclick="sAdd()">Adicionar</button></div>
+ <label>Ou cole vários (um por linha: Nome; código — o código é opcional)</label><textarea id="sb"></textarea><button onclick="sBulk()">Importar lista</button><p id="msg"></p></div>
+ <table><tr><th>Nome</th><th>Código de acesso</th><th></th></tr>${s.map(x=>`<tr><td>${esc(x.full_name)}</td><td><code>${esc(x.code)}</code></td><td><button class=s onclick="sDel('${x.id}')">Excluir</button></td></tr>`).join('')}</table>`},
+
+// ---- Resultados ----
+async res(){CUR='res';
+ if(!ST.ex){$('#v').innerHTML='<h2>Resultados</h2>'+noEx();return}
+ ST.at=await api('GET',`attempts?exam_id=eq.${ST.ex}&select=*,students(full_name,code)&order=started_at.desc`);
+ const ex=ST.exams.find(e=>e.id==ST.ex);
+ $('#v').innerHTML=`<h2>Resultados</h2><div class="row np">${exSel()}<button onclick="exp('csv')">CSV</button><button onclick="exp('xlsx')">Excel</button><button onclick="print()">PDF / Imprimir</button></div>
+ <p>${esc(ex.name)} · nota máxima ${fmt(ex.max_score)} · ${ST.at.length} tentativas</p>
+ <table><tr><th>Aluno</th><th>Acertos</th><th>Erros</th><th>Em branco</th><th>Nota</th><th>%</th><th>Conclusão</th></tr>
+ ${ST.at.map(a=>{const t=(a.correct_count||0)+(a.wrong_count||0)+(a.unanswered_count||0);return `<tr class="cl" onclick="det('${a.id}')"><td>${esc(a.students.full_name)}</td><td>${a.correct_count??'—'}</td><td>${a.wrong_count??'—'}</td><td>${a.unanswered_count??'—'}</td><td>${fmt(a.score)}</td><td>${a.status=='finished'&&t?Math.round(a.correct_count/t*100)+'%':'—'}</td><td>${a.status=='finished'?'Concluído':'Em andamento'}</td></tr>`}).join('')}</table><div id="d"></div>`}
+};
+
+// ====== PROVAS: CRUD ======
+const loc=s=>s?new Date(new Date(s)-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16):'';
+window.exForm=id=>{const e=ST.exams.find(x=>x.id==id)||{max_score:10,active:true,allow_retry:false};
+ $('#f').innerHTML=`<div class="card"><h3>${id?'Editar':'Nova'} prova</h3><div class="two"><div><label>Nome</label><input id="xn" value="${esc(e.name)}" style="width:100%"></div>
+ <div><label>Código de acesso do aluno</label><input id="xc" value="${esc(e.code)}" style="width:100%"></div></div>
+ <label>Descrição</label><textarea id="xd">${esc(e.description)}</textarea>
+ <div class="two"><div><label>Nota máxima</label><input id="xm" type="number" step="0.5" min="0.5" value="${e.max_score}"></div><div></div>
+ <div><label>Disponível a partir de</label><input id="xs" type="datetime-local" value="${loc(e.starts_at)}"></div><div><label>Disponível até</label><input id="xe" type="datetime-local" value="${loc(e.ends_at)}"></div></div>
+ <label><input id="xa" type="checkbox" ${e.active?'checked':''}> Prova ativa</label><label><input id="xr" type="checkbox" ${e.allow_retry?'checked':''}> Permitir novas tentativas</label>
+ <p><button onclick="exSave('${id||''}')">Salvar</button> <button onclick="go('exams')">Cancelar</button></p><p id="msg"></p></div>`};
+window.exSave=async id=>{
+ const b={name:$('#xn').value.trim(),code:$('#xc').value.trim().toUpperCase(),description:$('#xd').value,max_score:+$('#xm').value,active:$('#xa').checked,allow_retry:$('#xr').checked,
+  starts_at:$('#xs').value?new Date($('#xs').value).toISOString():null,ends_at:$('#xe').value?new Date($('#xe').value).toISOString():null};
+ try{if(!b.name||!b.code)throw new Error('Informe nome e código.');
+  id?await api('PATCH','exams?id=eq.'+id,b):await api('POST','exams',b);go('exams')}catch(e){$('#msg').textContent=e.message}};
+window.exDel=async id=>{if(confirm('Excluir a prova, as questões e todas as tentativas dos alunos? Não há como desfazer.')){await api('DELETE','exams?id=eq.'+id);go('exams')}};
+
+// ====== QUESTÕES: CRUD ======
+window.qForm=id=>{const q=ST.q.find(x=>x.id==id)||{world:1,position:(ST.q.length+1),difficulty:1,weight:1,question_options:[],question_keys:null};
+ const o=l=>q.question_options.find(x=>x.label==l)?.text||'',ck=q.question_keys?.correct_label;
+ $('#f').innerHTML=`<div class="card"><h3>${id?'Editar':'Nova'} questão</h3>
+ <div class="two"><div><label>Mundo</label><select id="qw">${[1,2,3,4,5].map(w=>`<option ${w==q.world?'selected':''}>${w}</option>`).join('')}</select></div>
+ <div><label>Posição no mundo</label><input id="qp" type="number" value="${q.position}"></div>
+ <div><label>Dificuldade</label><select id="qd">${[[1,'Fácil'],[2,'Média'],[3,'Difícil']].map(([v,t])=>`<option value="${v}" ${v==q.difficulty?'selected':''}>${t}</option>`).join('')}</select></div>
+ <div><label>Valor (peso)</label><input id="qv" type="number" step="0.25" min="0.25" value="${q.weight}"></div></div>
+ <label>Assunto</label><input id="qt" value="${esc(q.topic)}" style="width:100%" placeholder="Ex.: Ligações químicas">
+ <label>Enunciado</label><textarea id="qs">${esc(q.statement)}</textarea>
+ ${'ABCDE'.split('').map(l=>`<div class="row" style="margin-top:6px"><input type="radio" name="qk" value="${l}" ${ck==l?'checked':''}><b>${l}</b><input id="o${l}" value="${esc(o(l))}" style="flex:1" placeholder="Alternativa ${l}${'AB'.includes(l)?'':' (opcional)'}"></div>`).join('')}
+ <label>Explicação da resposta (só o professor vê)</label><textarea id="qe">${esc(q.explanation)}</textarea>
+ ${id?'<p style="font-size:.8rem;opacity:.7">Alterar o gabarito não recalcula tentativas já finalizadas.</p>':''}
+ <p><button onclick="qSave('${id||''}')">Salvar questão</button> <button onclick="go('qs')">Cancelar</button></p><p id="msg"></p></div>`;scrollTo(0,0)};
+window.qSave=async id=>{
+ try{const ops=[...'ABCDE'].map(l=>({l,t:$('#o'+l).value.trim()})),k=document.querySelector('[name=qk]:checked')?.value;
+  const q={exam_id:ST.ex,world:+$('#qw').value,position:+$('#qp').value,difficulty:+$('#qd').value,weight:+$('#qv').value,topic:$('#qt').value.trim()||null,statement:$('#qs').value.trim(),explanation:$('#qe').value.trim()||null};
+  if(!q.statement)throw new Error('Escreva o enunciado.');
+  if(ops.filter(o=>o.t).length<2)throw new Error('Informe ao menos duas alternativas.');
+  if(!k||!ops.find(o=>o.l==k).t)throw new Error('Marque a alternativa correta (e preencha o texto dela).');
+  let qid=id;
+  if(id){delete q.exam_id;await api('PATCH','questions?id=eq.'+id,q)}else qid=(await api('POST','questions',q))[0].id;
+  await api('POST','question_options?on_conflict=question_id,label',ops.filter(o=>o.t).map(o=>({question_id:qid,label:o.l,text:o.t})),'resolution=merge-duplicates,return=minimal');
+  await api('POST','question_keys?on_conflict=question_id',{question_id:qid,correct_label:k},'resolution=merge-duplicates,return=minimal');
+  for(const o of ops.filter(o=>!o.t))try{await api('DELETE',`question_options?question_id=eq.${qid}&label=eq.${o.l}`)}catch(e){}
+  go('qs')}catch(e){$('#msg').textContent=e.message}};
+window.qDel=async id=>{if(confirm('Excluir esta questão? As respostas dos alunos a ela também serão apagadas.')){await api('DELETE','questions?id=eq.'+id);go('qs')}};
+
+// ====== ALUNOS ======
+const gen=()=>Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.random()*32|0]).join('');
+window.sAdd=async()=>{try{const n=$('#sn').value.trim();if(!n)throw new Error('Informe o nome.');await api('POST','students',{full_name:n,code:($('#sc').value.trim()||gen()).toUpperCase()});go('studs')}catch(e){$('#msg').textContent=e.message}};
+window.sBulk=async()=>{try{const r=$('#sb').value.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const p=l.split(/[;\t,]/);return{full_name:p[0].trim(),code:(p[1]?.trim()||gen()).toUpperCase()}});
+ if(!r.length)throw new Error('Cole ao menos um nome.');await api('POST','students',r,'return=minimal');go('studs')}catch(e){$('#msg').textContent=e.message}};
+window.sDel=async id=>{if(confirm('Excluir aluno e suas tentativas?')){await api('DELETE','students?id=eq.'+id);go('studs')}};
+
+// ====== RESULTADOS: DETALHE E EXPORTAÇÃO ======
+window.det=async id=>{const a=ST.at.find(x=>x.id==id),r=await api('GET',`error_report?attempt_id=eq.${id}&order=world,position`);
+ const t=a.finished_at?Math.round((new Date(a.finished_at)-new Date(a.started_at))/1000):null,wrong=r.filter(x=>!x.is_correct);
+ $('#d').innerHTML=`<div class="card"><h2>${esc(a.students.full_name)}</h2>
+ <p>Identificação: <code>${esc(a.students.code)}</code> · Início: ${dt(a.started_at)} · Conclusão: ${dt(a.finished_at)} · Tempo: ${t==null?'—':Math.floor(t/60)+'min '+t%60+'s'}<br>
+ Respondidas: ${r.length} · Acertos: <span class=ok>${a.correct_count??r.length-wrong.length}</span> · Erros: <span class=er>${a.wrong_count??wrong.length}</span> · Nota: <b>${fmt(a.score)}</b> / ${fmt(ST.exams.find(e=>e.id==ST.ex).max_score)}</p>
+ <h3>Questões incorretas (${wrong.length})</h3>${wrong.map(x=>`<div class="card"><b>Mundo ${x.world} · Questão ${x.position}</b> — ${esc(x.topic||'')}<br>${esc(x.statement)}<br>
+ Escolhida: <span class=er>${esc(x.chosen)}</span> · Correta: <span class=ok>${esc(x.correct_label)}</span>${x.explanation?'<br><i>'+esc(x.explanation)+'</i>':''}</div>`).join('')||'<p>Nenhum erro.</p>'}
+ <h3>Histórico de respostas</h3><table><tr><th>Mundo</th><th>Questão</th><th>Assunto</th><th>Escolhida</th><th>Correta</th><th>Resultado</th><th>Horário</th></tr>
+ ${r.map(x=>`<tr><td>${x.world}</td><td>${x.position}</td><td>${esc(x.topic||'')}</td><td>${esc(x.chosen)}</td><td>${esc(x.correct_label)}</td><td class="${x.is_correct?'ok':'er'}">${x.is_correct?'Acerto':'Erro'}</td><td>${dt(x.answered_at)}</td></tr>`).join('')}</table>
+ <button class="np" onclick="print()">Imprimir relatório do aluno</button></div>`;$('#d').scrollIntoView()};
+window.exp=f=>{const rows=ST.at.map(a=>{const t=(a.correct_count||0)+(a.wrong_count||0)+(a.unanswered_count||0);return{Aluno:a.students.full_name,Código:a.students.code,Acertos:a.correct_count,Erros:a.wrong_count,'Em branco':a.unanswered_count,Nota:a.score,'Aproveitamento %':a.status=='finished'&&t?Math.round(a.correct_count/t*100):null,Início:dt(a.started_at),Conclusão:dt(a.finished_at),Status:a.status=='finished'?'Concluído':'Em andamento'}});
+ if(!rows.length)return alert('Sem dados para exportar.');
+ if(f=='xlsx'){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Resultados');XLSX.writeFile(wb,'resultados.xlsx')}
+ else{const h=Object.keys(rows[0]),c=v=>'"'+String(v??'').replace(/"/g,'""')+'"',s='\ufeff'+[h.map(c).join(';'),...rows.map(r=>h.map(k=>c(r[k])).join(';'))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv;charset=utf-8'}));a.download='resultados.csv';a.click()}};
+boot();
+</script></body></html>

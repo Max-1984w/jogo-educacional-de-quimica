@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Halloween — O Último Caldeirão</title>
+<style>
+:root{--p:#210B38;--r:#D71936;--g:#B7FF00;--k:#09070D;--d:#19151F;--w:#E8E2DC}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--k);color:var(--w);font-family:Georgia,serif;overflow:hidden}
+#game{position:fixed;inset:0}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,transparent 55%,#09070Dcc 100%)}
+.ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(9,7,13,.9);z-index:5;padding:16px}
+.ov.on{display:flex}
+.box{background:var(--d);border:2px solid var(--g);box-shadow:0 0 34px #b7ff0040;padding:24px;max-width:620px;width:100%;max-height:94vh;overflow:auto;animation:in .4s}
+@keyframes in{from{opacity:0;transform:translateY(14px)}}
+h1,h2{font-family:Impact,'Arial Narrow',sans-serif;letter-spacing:2px;color:var(--g);margin:0 0 12px;text-transform:uppercase}
+h1{font-size:2rem;text-shadow:0 0 14px #b7ff0080}
+input,button{font:inherit;width:100%;padding:12px;margin:6px 0;background:var(--k);color:var(--w);border:1px solid var(--p)}
+button{cursor:pointer;background:var(--p);border-color:var(--g);text-align:left}
+button:hover:not(:disabled){background:var(--r)}
+button:disabled{opacity:.5;cursor:default}
+.c{text-align:center}.opt.sel{background:var(--r)}
+.ok{animation:okf .7s}.bad{animation:badf .7s}
+@keyframes okf{50%{box-shadow:0 0 50px var(--g)}}
+@keyframes badf{50%{box-shadow:0 0 50px var(--r)}}
+#hud{position:fixed;top:8px;left:12px;right:12px;z-index:3;font-family:Impact,sans-serif;color:var(--g);text-shadow:2px 2px #000;display:flex;justify-content:space-between;pointer-events:none}
+#hud button{width:auto;pointer-events:auto;padding:4px 12px;margin:0}
+#tc{position:fixed;bottom:12px;left:0;right:0;display:none;justify-content:space-between;padding:0 14px;z-index:3}
+#tc button{width:70px;height:70px;opacity:.65;border-radius:50%;text-align:center;padding:0;font-size:1.4rem}
+@media(pointer:coarse){#tc{display:flex}}
+#err{color:var(--r);min-height:1.2em}
+.row{display:flex;gap:8px;align-items:center}.row input{margin:2px 0}
+</style></head><body>
+<div id="game"></div><div id="vig"></div>
+<div id="hud" style="display:none"><span id="hl"></span><button id="pb">⏸ Pausa</button></div>
+<div id="tc"><div class="row"><button id="tl">◀</button><button id="tr">▶</button></div><div class="row"><button id="te">E</button><button id="tj">▲</button></div></div>
+
+<div class="ov on" id="login"><div class="box">
+ <h1>Halloween<br>O Último Caldeirão</h1>
+ <p>Hollow Creek desaparece a cada noite de Halloween. Identifique-se para entrar no laboratório.</p>
+ <input id="ic" placeholder="Código da avaliação" autocomplete="off">
+ <input id="is" placeholder="Seu código de aluno" autocomplete="off">
+ <input id="in" placeholder="Nome completo" autocomplete="off">
+ <button id="go" class="c">Entrar no laboratório</button><p id="err"></p>
+ <p style="font-size:.8rem;opacity:.7">← → / A D mover · Espaço pular (duplo) · Shift correr · E interagir · P pausa</p>
+</div></div>
+
+<div class="ov" id="msg"><div class="box"><h2 id="mt"></h2><p id="mx" style="line-height:1.5"></p><button id="mb" class="c">Continuar</button></div></div>
+
+<div class="ov" id="quiz"><div class="box" id="qb">
+ <div id="qh" style="opacity:.8"></div>
+ <div style="height:6px;background:#000;margin:8px 0 14px"><div id="qf" style="height:100%;background:var(--g);width:0;transition:width .4s"></div></div>
+ <p id="qs" style="line-height:1.5"></p><div id="qo"></div>
+ <button id="qc" class="c" disabled>Confirmar resposta</button><p id="qm" class="c"></p>
+</div></div>
+
+<div class="ov" id="pause"><div class="box">
+ <h2>Pausa</h2>
+ <label>Música <input id="vm" type="range" min="0" max="1" step=".05" value=".5"></label>
+ <label>Efeitos <input id="vs" type="range" min="0" max="1" step=".05" value=".7"></label>
+ <button id="rs" class="c">Continuar</button>
+</div></div>
+
+<div class="ov" id="end"><div class="box c">
+ <h1>O Último Caldeirão</h1><p id="et" style="line-height:1.5"></p>
+ <h2 id="en"></h2><p id="ed"></p>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+<script>
+// ====== CONFIGURAÇÃO: cole os dados do seu projeto Supabase (Settings > API) ======
+const CFG={URL:'COLE_AQUI_A_URL_DO_SUPABASE',KEY:'COLE_AQUI_A_ANON_KEY'};
+// ==================================================================================
+const $=id=>document.getElementById(id);
+async function rpc(fn,args){
+  if(CFG.URL.startsWith('COLE'))throw new Error('Configure CFG.URL e CFG.KEY no início do script.');
+  const r=await fetch(CFG.URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:CFG.KEY,Authorization:'Bearer '+CFG.KEY,'Content-Type':'application/json'},body:JSON.stringify(args)});
+  const j=await r.json().catch(()=>null);
+  if(!r.ok)throw new Error((j&&j.message)||'Erro de comunicação');
+  return j;
+}
+const S={att:null,qs:[],lives:3,total:0,done:0};
+window.T={l:0,r:0,j:0,jp:0,e:0};
+
+// ====== ÁUDIO (Web Audio sintetizado) ======
+let AC,drone,o1,o2,vol={m:.5,s:.7};
+function au(){if(AC)return;AC=new(window.AudioContext||window.webkitAudioContext)();o1=AC.createOscillator();o2=AC.createOscillator();
+ const f=AC.createBiquadFilter();f.frequency.value=240;drone=AC.createGain();o1.type='sawtooth';o2.type='sine';o1.frequency.value=55;o2.frequency.value=82;
+ o1.connect(f);o2.connect(f);f.connect(drone);drone.connect(AC.destination);o1.start();o2.start();setM();
+ setInterval(()=>{if(Math.random()<.5)sfx(180+Math.random()*60,1.2,'sine',-120,.4)},7000)}
+function setM(){if(drone)drone.gain.value=.14*vol.m}
+function tone(w){if(o1){const b=[55,49,41,46,38][w];o1.frequency.value=b;o2.frequency.value=b*1.5}}
+function sfx(fr,d=.12,t='square',sl=0,v=1){if(!AC)return;const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime;
+ o.type=t;o.frequency.setValueAtTime(fr,n);o.frequency.exponentialRampToValueAtTime(Math.max(30,fr+sl),n+d);
+ g.gain.setValueAtTime(.15*vol.s*v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(n+d)}
+$('vm').oninput=e=>{vol.m=+e.target.value;setM()};$('vs').oninput=e=>vol.s=+e.target.value;
+
+// ====== MUNDOS ======
+const W=[
+{n:'A Floresta dos Esquecidos',bg:0x210B38,fog:0x4a1a6e,acc:0xB7FF00,en:['ghost','pump'],note:'"Se você está lendo isto, a carta chegou até você. O laboratório registra tudo. — M."'},
+{n:'O Cemitério das Almas',bg:0x1a0a1c,fog:0x5a1030,acc:0xD71936,en:['ghost','bat'],note:'Um bilhete úmido: "Cada erro alimenta o caldeirão. Cada acerto o enfraquece."'},
+{n:'O Pântano Tóxico',bg:0x0d1a12,fog:0x2a5a10,acc:0xB7FF00,en:['slime','bat'],note:'Diário de Mortimer: "A substância não escapou. Eu a deixei sair."'},
+{n:'O Laboratório Proibido',bg:0x120b24,fog:0x3a1a6e,acc:0xB7FF00,en:['slime','ghost','pump'],note:'Etiqueta num frasco: "Hollow Creek — amostra 1. Ainda respira."'},
+{n:'O Castelo de Mortimer',bg:0x14050c,fog:0x6a1020,acc:0xD71936,en:['ghost','pump','bat','slime'],note:'Vitral vermelho, uma inscrição: "O último caldeirão precisa de um último aluno."'}];
+
+// ====== TEXTURAS (pixel art procedural) ======
+const PF={idle:[{b:0},{b:1}],walk:[{l:3},{l:0},{l:-3},{l:0}],jump:[{l:2,a:1}],fall:[{l:-2,a:1}],land:[{sq:1}],hurt:[{h:1,a:1}],act:[{a:2}],cele:[{a:1},{a:1,b:-1}],die:[{h:1,a:1,sq:2}]};
+function tx(s,k,w,h,fn){if(s.textures.exists(k))return;const g=s.make.graphics({x:0,y:0,add:false});fn(g);g.generateTexture(k,w,h);g.destroy()}
+function drawP(g,o){const b=o.b||0,l=o.l||0,q=o.sq?o.sq*2:0;
+ g.fillStyle(0x19151F);g.fillRect(7,26+q,4,6-q-Math.max(0,l));g.fillRect(13,26+q,4,6-q-Math.max(0,-l));
+ g.fillStyle(0xD71936);g.fillRect(6,13+b+q,12,13-b-q);
+ if(o.a==1){g.fillRect(3,7+b,3,7);g.fillRect(18,7+b,3,7)}else if(o.a==2){g.fillRect(18,12,6,3);g.fillRect(3,15,3,7)}else{g.fillRect(3,14+b+q,3,7);g.fillRect(18,14+b+q,3,7)}
+ g.fillStyle(0xE8E2DC);g.fillRect(7,5+b+q,10,8);
+ g.fillStyle(o.h?0xD71936:0xB7FF00);g.fillRect(9,8+b+q,2,2);g.fillRect(14,8+b+q,2,2);
+ g.fillStyle(0x210B38);g.fillRect(5,4+b+q,14,2);g.fillRect(8,0+b+q,8,4);g.fillStyle(0xB7FF00);g.fillRect(8,3+b+q,8,1)}
+function mkTex(s,wi){
+ for(const n in PF)PF[n].forEach((o,i)=>tx(s,'p_'+n+'_'+i,24,32,g=>drawP(g,o)));
+ [0,1].forEach(i=>{
+  tx(s,'e_ghost_'+i,20,20,g=>{g.fillStyle(0xE8E2DC);g.fillRect(2,2,16,14);g.fillRect(4,0,12,2);for(let x=0;x<4;x++)g.fillRect(2+x*4,16,4,i?(x%2?4:2):(x%2?2:4));g.fillStyle(0x09070D);g.fillRect(5,6,3,4);g.fillRect(12,6,3,4)});
+  tx(s,'e_pump_'+i,20,20,g=>{g.fillStyle(0xe8791a);g.fillRect(1,5,18,14);g.fillRect(3,3,14,2);g.fillStyle(0x1a5a10);g.fillRect(9,0,3,4);g.fillStyle(0xB7FF00);g.fillRect(4,9,4,4);g.fillRect(12,9,4,4);g.fillRect(6,15+i,8,2)});
+  tx(s,'e_bat_'+i,22,12,g=>{g.fillStyle(0x19151F);g.fillRect(8,3,6,7);g.fillStyle(0x4a1a6e);if(i){g.fillRect(0,0,8,4);g.fillRect(14,0,8,4)}else{g.fillRect(0,5,8,4);g.fillRect(14,5,8,4)}g.fillStyle(0xD71936);g.fillRect(9,5,1,1);g.fillRect(12,5,1,1)});
+  tx(s,'e_slime_'+i,20,16,g=>{g.fillStyle(0xB7FF00);g.fillRect(1,6+i,18,10-i);g.fillRect(4,3+i,12,3);g.fillStyle(0x09070D);g.fillRect(5,8+i,3,3);g.fillRect(12,8+i,3,3);g.fillStyle(0x210B38);g.fillRect(8,13,4,2)})});
+ tx(s,'tile'+wi,16,16,g=>{g.fillStyle(0x19151F);g.fillRect(0,0,16,16);g.fillStyle(0x2a2233);g.fillRect(0,6,16,1);g.fillRect(8,11,8,1);g.fillStyle(W[wi].acc);g.fillRect(0,0,16,3)});
+ tx(s,'mv',96,14,g=>{g.fillStyle(0x3a2a50);g.fillRect(0,0,96,14);g.fillStyle(0xD71936);g.fillRect(0,0,96,3);g.fillRect(0,0,4,14);g.fillRect(92,0,4,14)});
+ tx(s,'dis',96,14,g=>{g.fillStyle(0x2a2233);g.fillRect(0,0,96,14);g.fillStyle(0xB7FF00);g.fillRect(0,0,96,2);g.fillStyle(0x09070D);for(let x=10;x<96;x+=22)g.fillRect(x,3,2,9)});
+ tx(s,'spk',16,12,g=>{g.fillStyle(0xD71936);g.fillTriangle(0,12,8,0,16,12)});
+ tx(s,'lamp',16,34,g=>{g.fillStyle(0x19151F);g.fillRect(7,8,2,26);g.fillRect(3,6,10,3);g.fillStyle(0x6a6a6a);g.fillRect(4,0,8,7)});
+ tx(s,'caul',44,40,g=>{g.fillStyle(0x09070D);g.fillRect(4,10,36,28);g.fillRect(0,8,44,4);g.fillStyle(0xB7FF00);g.fillRect(6,10,32,4);g.fillStyle(0x19151F);g.fillRect(8,38,6,2);g.fillRect(30,38,6,2)});
+ tx(s,'note',14,16,g=>{g.fillStyle(0xE8E2DC);g.fillRect(0,0,14,16);g.fillStyle(0x210B38);for(let y=3;y<14;y+=3)g.fillRect(2,y,10,1)});
+}
+function mkAnims(s){
+ for(const n in PF){if(s.anims.exists('p_'+n))continue;
+  s.anims.create({key:'p_'+n,frames:PF[n].map((o,i)=>({key:'p_'+n+'_'+i})),frameRate:n=='walk'?8:n=='idle'?2:n=='cele'?4:1,repeat:-1})}
+ if(!s.anims.exists('p_run'))s.anims.create({key:'p_run',frames:PF.walk.map((o,i)=>({key:'p_walk_'+i})),frameRate:15,repeat:-1});
+ ['ghost','pump','bat','slime'].forEach(k=>{if(!s.anims.exists('e_'+k))s.anims.create({key:'e_'+k,frames:[{key:'e_'+k+'_0'},{key:'e_'+k+'_1'}],frameRate:k=='bat'?9:3,repeat:-1})})}
+
+// ====== UI ======
+function msgBox(t,x,cb,btn='Continuar'){$('mt').textContent=t;$('mx').textContent=x;$('mb').textContent=btn;$('msg').classList.add('on');
+ $('mb').onclick=()=>{$('msg').classList.remove('on');cb&&cb()}}
+function hud(sc){const w=W[sc.wi];$('hl').textContent=`Mundo ${sc.wi+1}: ${w.n}  ·  ♥ ${S.lives}  ·  Questões ${S.done}/${S.total}`}
+function runQuiz(list,done){
+ let i=0,chosen=null;
+ const show=()=>{
+  if(i>=list.length){$('quiz').classList.remove('on');return done()}
+  const q=list[i];chosen=null;$('qb').className='box';$('qm').textContent='';$('qc').disabled=true;
+  $('qh').textContent=`Questão ${S.done+1} de ${S.total}`;$('qf').style.width=(S.done/S.total*100)+'%';
+  $('qs').textContent=q.statement;$('qo').innerHTML='';
+  q.options.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o.label+') '+o.text;
+   b.onclick=()=>{chosen=o.label;[...$('qo').children].forEach(c=>c.classList.remove('sel'));b.classList.add('sel');$('qc').disabled=false};$('qo').appendChild(b)});
+  $('quiz').classList.add('on');
+  $('qc').onclick=async()=>{
+   if(!chosen)return;$('qc').disabled=true;[...$('qo').children].forEach(c=>c.disabled=true);
+   try{const r=await rpc('submit_answer',{p_attempt:S.att,p_question:q.id,p_choice:chosen});
+    S.done++;$('qf').style.width=(S.done/S.total*100)+'%';
+    $('qb').className='box '+(r.correct?'ok':'bad');
+    $('qm').textContent=r.correct?'✔ Resposta confirmada.':'✖ Resposta registrada. O laboratório anotou.';
+    r.correct?sfx(660,.25,'triangle',400):sfx(150,.4,'sawtooth',-80);
+    setTimeout(()=>{i++;show()},1500)
+   }catch(e){$('qm').textContent=e.message;[...$('qo').children].forEach(c=>c.disabled=false);$('qc').disabled=false}}}
+ show()}
+
+// ====== FASE ======
+class L extends Phaser.Scene{
+ constructor(){super('L')}
+ init(d){this.wi=d.w}
+ create(){
+  const wi=this.wi,cf=W[wi],H=540,LW=3400;this.LW=LW;this.lock=false;this.inv=0;this.stunTo=0;this.landT=0;this.coy=0;this.jc=0;this.wasAir=false;this.acting=0;this.finished=false;
+  mkTex(this,wi);mkAnims(this);tone(wi);
+  this.cameras.main.setBackgroundColor(cf.bg);
+  let s=wi*7919+13;const R=()=>(s=(s*16807)%2147483647)/2147483647;
+  // fundo com profundidade
+  this.add.circle(780,90,46,0xD71936).setScrollFactor(.04).setAlpha(.9);
+  for(const [sf,col,hh] of [[.25,0x150a22,200],[.5,0x0e0716,140]]){
+   const g=this.add.graphics().setScrollFactor(sf);g.fillStyle(col);
+   for(let x=0;x<LW*sf+1000;x+=40+R()*60)g.fillRect(x,H-hh*(.4+R()*.6),14+R()*26,hh)}
+  const fg=this.add.graphics().setScrollFactor(.4);fg.fillStyle(cf.acc,.8);
+  for(let i=0;i<40;i++)fg.fillRect(R()*(LW*.4+960),200+R()*250,2,2);
+  const fog=this.add.rectangle(480,H-120,960,260,cf.fog,.18).setScrollFactor(0);
+  this.tweens.add({targets:fog,alpha:.32,duration:3000,yoyo:true,repeat:-1});
+  // terreno
+  this.st=this.physics.add.staticGroup();
+  const plat=(x,y,w,h)=>{this.st.create(x,y,'tile'+wi).setOrigin(0).setDisplaySize(w,h).refreshBody()};
+  const segs=[];let x=0;
+  while(x<LW-900){const len=320+(R()*280|0);plat(x,470,len,80);segs.push([x,len]);x+=len+(wi?90+(R()*(40+wi*8)|0):0)}
+  plat(x,470,LW-x,80);const endSeg=[x,LW-x];this.endX=LW-160;
+  this.spk=this.physics.add.staticGroup();
+  if(wi>0)segs.forEach((g,i)=>{if(i>0&&R()<.7){const sx=g[0]+60+R()*(g[1]-140);this.spk.create(sx,470,'spk').setOrigin(.5,1).refreshBody()}});
+  // plataformas flutuantes / móveis / temporárias
+  this.mv=this.physics.add.group({allowGravity:false,immovable:true});this.dis=this.physics.add.group({allowGravity:false,immovable:true});
+  const N=9;for(let i=0;i<N;i++){const px=500+i*(LW-1100)/N,py=330+R()*60;
+   if(wi>=1&&i%3==1){const m=this.mv.create(px,py,'mv');m.x0=px;m.px=px;m.dx=0;m.setVelocityX(60)}
+   else if(wi>=2&&i%3==2){this.dis.create(px,py,'dis')}
+   else plat(px,py,96+(R()*64|0),14)}
+  // checkpoint e altar
+  this.cp={x:60,y:400};this.lamp=this.physics.add.staticSprite(LW/2,470-17,'lamp');
+  this.altar=this.physics.add.staticSprite(LW-160,470-20,'caul');
+  this.notes=this.physics.add.staticGroup();[.28,.72].forEach(f=>{this.notes.create(LW*f,470-10,'note')});
+  // jogador
+  this.p=this.physics.add.sprite(60,400,'p_idle_0');this.p.body.setSize(14,30).setOffset(5,2);
+  this.physics.world.setBounds(0,-400,LW,H+500);this.physics.world.setBoundsCollision(true,true,true,false);this.p.setCollideWorldBounds(true);
+  this.physics.add.collider(this.p,this.st);
+  this.physics.add.collider(this.p,this.mv,(pl,m)=>{if(pl.body.touching.down)pl.x+=m.dx});
+  this.physics.add.collider(this.p,this.dis,(pl,d)=>{if(!d.trig&&pl.body.touching.down){d.trig=true;
+   this.tweens.add({targets:d,alpha:.2,duration:600,onComplete:()=>{d.disableBody(true,true);this.time.delayedCall(2200,()=>{d.enableBody(true,d.x,d.y,true,true);d.alpha=1;d.trig=false})}})}});
+  this.physics.add.overlap(this.p,this.spk,()=>this.hurt());
+  this.physics.add.overlap(this.p,this.lamp,()=>{if(this.cp.x!=this.lamp.x){this.cp={x:this.lamp.x,y:400};this.lamp.setTint(cf.acc);sfx(520,.3,'triangle',300)}});
+  this.physics.add.overlap(this.p,this.notes,(pl,n)=>{n.destroy();this.pauseG();sfx(300,.4,'sine',-100);msgBox('Bilhete encontrado',cf.note,()=>this.resumeG())});
+  // inimigos
+  this.en=this.physics.add.group();
+  segs.forEach((g,i)=>{if(i==0)return;const k=cf.en[(i+wi)%cf.en.length],ex=g[0]+g[1]/2;
+   const e=this.en.create(ex,k=='bat'?330:440,'e_'+k+'_0');e.k=k;e.play('e_'+k);e.dir=R()<.5?-1:1;e.sp=40+wi*8;e.a=g[0]+30;e.b=g[0]+g[1]-30;
+   e.x0=ex;e.y0=330;e.r=130;e.amp=40;e.ph=R()*6;e.body.setAllowGravity(k!='bat')});
+  this.physics.add.collider(this.en,this.st);
+  this.physics.add.overlap(this.p,this.en,(pl,e)=>{
+   if(pl.body.velocity.y>80&&pl.y<e.y-6){e.disableBody(true,false);this.tweens.add({targets:e,alpha:0,scaleY:.1,duration:200,onComplete:()=>e.destroy()});pl.setVelocityY(-340);this.jc=1;sfx(260,.15,'square',-100)}
+   else this.hurt()});
+  this.cameras.main.setBounds(0,0,LW,H);this.cameras.main.startFollow(this.p,true,.12,.12);
+  this.k=this.input.keyboard.addKeys('W,A,S,D,SPACE,SHIFT,E,P,UP,LEFT,RIGHT,ESC');
+  this.pr=this.add.text(0,0,'Pressione E',{fontFamily:'Impact',fontSize:'18px',color:'#B7FF00'}).setOrigin(.5).setVisible(false);
+  hud(this);$('hud').style.display='flex';$('pb').onclick=()=>this.pauseToggle();
+  this.cameras.main.fadeIn(600);
+  if(wi==0&&!S.introDone){S.introDone=1;this.pauseG();msgBox('Hollow Creek','Uma carta sem remetente trouxe você até aqui. O portão do laboratório se fecha atrás de você. Encontre bilhetes, acenda lanternas e chegue ao caldeirão de cada setor.',()=>this.resumeG())}
+ }
+ pauseG(){this.lock=true;this.physics.pause();window.T.l=window.T.r=window.T.j=0}
+ resumeG(){this.lock=false;this.physics.resume()}
+ pauseToggle(){if(this.finished)return;if(!this.lock){this.pauseG();$('pause').classList.add('on');$('rs').onclick=()=>{$('pause').classList.remove('on');this.resumeG()}}else if($('pause').classList.contains('on')){$('pause').classList.remove('on');this.resumeG()}}
+ hurt(){const t=this.time.now;if(t<this.inv||this.lock)return;this.inv=t+1500;this.stunTo=t+350;this.lives(-1);sfx(160,.3,'sawtooth',-100);
+  this.p.setVelocity(this.p.flipX?220:-220,-300);this.tweens.add({targets:this.p,alpha:.3,duration:100,yoyo:true,repeat:6,onComplete:()=>this.p.alpha=1});
+  if(S.lives<=0)this.defeat()}
+ lives(d){S.lives+=d;hud(this)}
+ respawn(){this.p.setPosition(this.cp.x,this.cp.y).setVelocity(0,0);this.inv=this.time.now+1500;this.cameras.main.fadeIn(300)}
+ defeat(){this.pauseG();this.p.anims.play('p_die');this.cameras.main.shake(300,.01);
+  msgBox('Derrota','O laboratório registrou sua queda. Você retorna ao último ponto de recuperação.',()=>{S.lives=3;hud(this);this.respawn();this.resumeG()},'Voltar')}
+ update(t,dt){
+  const p=this.p,b=p.body,k=this.k,T=window.T;
+  if(Phaser.Input.Keyboard.JustDown(k.P)||Phaser.Input.Keyboard.JustDown(k.ESC))this.pauseToggle();
+  if(this.lock||this.finished)return;
+  this.mv.getChildren().forEach(m=>{m.dx=m.x-m.px;m.px=m.x;if(m.x>m.x0+110)m.setVelocityX(-60);if(m.x<m.x0-110)m.setVelocityX(60)});
+  this.en.getChildren().forEach(e=>{if(!e.active)return;
+   if(e.k=='bat'){e.x+=e.dir*70*dt/1000;if(Math.abs(e.x-e.x0)>e.r)e.dir*=-1;e.y=e.y0+Math.sin(t/400+e.ph)*e.amp}
+   else{e.setVelocityX(e.dir*e.sp);if(e.x<e.a)e.dir=1;if(e.x>e.b)e.dir=-1;if(e.k=='pump'&&b&&e.body.blocked.down&&Math.random()<.012)e.setVelocityY(-380)}
+   e.setFlipX(e.dir>0)});
+  if(p.y>560){this.lives(-1);sfx(120,.4,'sawtooth',-60);if(S.lives<=0)return this.defeat();this.respawn();return}
+  const L=k.A.isDown||k.LEFT.isDown||T.l,Rr=k.D.isDown||k.RIGHT.isDown||T.r,run=k.SHIFT.isDown,sp=run?250:180,stun=t<this.stunTo;
+  const on=b.blocked.down||b.touching.down;
+  if(!stun){if(L){p.setVelocityX(-sp);p.setFlipX(true)}else if(Rr){p.setVelocityX(sp);p.setFlipX(false)}else p.setVelocityX(b.velocity.x*.6)}
+  if(on){this.coy=t;this.jc=0;if(this.wasAir){this.landT=t+130;sfx(110,.08,'triangle',-30)}}this.wasAir=!on;
+  const J=Phaser.Input.Keyboard.JustDown(k.SPACE)||Phaser.Input.Keyboard.JustDown(k.W)||Phaser.Input.Keyboard.JustDown(k.UP)||T.jp;T.jp=0;
+  if(!stun&&J){if(on||t-this.coy<110){p.setVelocityY(-520);this.jc=1;sfx(380,.15,'square',300)}else if(this.jc<2){p.setVelocityY(-470);this.jc=2;sfx(520,.15,'square',300)}}
+  if(!(k.SPACE.isDown||k.W.isDown||k.UP.isDown||T.j)&&b.velocity.y<-220)p.setVelocityY(b.velocity.y*.8);
+  // interação
+  const nearA=Math.abs(p.x-this.altar.x)<70;this.pr.setVisible(nearA).setPosition(this.altar.x,this.altar.y-50);
+  if(nearA&&(Phaser.Input.Keyboard.JustDown(k.E)||T.e)){T.e=0;this.interact()}T.e=0;
+  let a;if(stun)a='hurt';else if(t<this.acting)a='act';else if(!on)a=b.velocity.y<0?'jump':'fall';else if(t<this.landT)a='land';
+  else if(Math.abs(b.velocity.x)>30)a=Math.abs(b.velocity.x)>200?'run':'walk';else a='idle';
+  p.anims.play('p_'+a,true)}
+ interact(){
+  const wq=S.qs.filter(q=>q.world==this.wi+1&&!q.answered&&!S.ans[q.id]);
+  this.acting=this.time.now+400;sfx(90,.4,'sawtooth',-30);this.pauseG();
+  const go=()=>{this.finished=true;this.p.anims.play('p_cele');sfx(440,.6,'triangle',440);
+   this.time.delayedCall(1800,()=>{this.cameras.main.fadeOut(600);this.time.delayedCall(650,()=>this.next())});this.resumeG();this.physics.pause()};
+  if(!wq.length)return go();
+  runQuiz(wq,()=>{wq.forEach(q=>S.ans[q.id]=1);go()})}
+ next(){if(this.wi<4){const n=this.wi+1;$('hud').style.display='none';msgBox('Setor concluído','Você avançou para '+W[n].n+'.',()=>this.scene.start('L',{w:n}))}
+  else this.finish()}
+ async finish(){$('hud').style.display='none';
+  try{const r=await rpc('finish_attempt',{p_attempt:S.att});
+   $('et').textContent='Mortimer sorri na escuridão: cada resposta sua alimentou o último caldeirão. O experimento terminou — e o registro foi enviado ao professor.';
+   $('en').textContent='Nota '+Number(r.score).toFixed(1).replace('.',',')+' / '+Number(r.max_score).toFixed(1).replace('.',',');
+   $('ed').textContent=`Acertos: ${r.correct} · Erros: ${r.wrong} · Em branco: ${r.unanswered}`;
+  }catch(e){$('et').textContent='Não foi possível registrar o resultado: '+e.message;$('en').textContent='';$('ed').textContent='Avise o professor.'}
+  $('end').classList.add('on')}
+}
+
+// ====== LOGIN / INÍCIO ======
+let game;
+$('go').onclick=async()=>{
+ $('err').textContent='';au();
+ try{
+  S.att=await rpc('start_attempt',{p_exam_code:$('ic').value,p_student_code:$('is').value,p_name:$('in').value});
+  S.qs=await rpc('get_questions',{p_attempt:S.att});S.total=S.qs.length;S.done=S.qs.filter(q=>q.answered).length;S.ans={};
+  if(!S.total)throw new Error('Esta avaliação ainda não tem questões.');
+  const first=Math.max(0,Math.min(4,(S.qs.find(q=>!q.answered)||{world:1}).world-1));
+  $('login').classList.remove('on');
+  game=new Phaser.Game({type:Phaser.AUTO,parent:'game',pixelArt:true,backgroundColor:'#09070D',
+   scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH,width:960,height:540},
+   physics:{default:'arcade',arcade:{gravity:{y:1150},debug:false}},scene:[],callbacks:{postBoot:g=>{g.scene.add('L',L,true,{w:first})}}});
+ }catch(e){$('err').textContent=e.message}};
+// controles de toque
+const hold=(id,k)=>{const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();au();T[k]=1;if(k=='j')T.jp=1});['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,()=>{if(k!='e')T[k]=0}))};
+hold('tl','l');hold('tr','r');hold('tj','j');hold('te','e');
+</script></body></html>
