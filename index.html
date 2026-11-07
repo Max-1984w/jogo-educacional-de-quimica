@@ -423,9 +423,11 @@ async function boot(){
   $('#auth').style.display='none';$('#app').style.display='block';go('dash')}catch(e){logout(1)}}
 document.querySelectorAll('nav [data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
 async function go(v){document.querySelectorAll('nav [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v==v));
- ST.exams=await api('GET','exams?select=*,questions(count)&order=created_at.desc');
- if(!ST.ex||!ST.exams.find(e=>e.id==ST.ex))ST.ex=ST.exams[0]?.id||null;
- try{await V[v]()}catch(e){$('#v').innerHTML='<p class=er>'+esc(e.message)+'</p>'}}
+ $('#v').innerHTML='<p>Carregando…</p>';
+ try{ST.exams=await api('GET','exams?select=*,questions(count)&order=created_at.desc');
+  if(!ST.ex||!ST.exams.find(e=>e.id==ST.ex))ST.ex=ST.exams[0]?.id||null;
+  await V[v]()
+ }catch(e){const m=e.message||String(e);$('#v').innerHTML='<h3>Não foi possível carregar</h3><p class=er>'+esc(m)+'</p>'+(/permission denied/i.test(m)?'<p>O banco ainda não liberou as tabelas para o painel. Rode o arquivo <b>caldeirao_permissoes.sql</b> no SQL Editor do Supabase e recarregue.</p>':/does not exist|schema cache|relation/i.test(m)?'<p>As tabelas não foram encontradas. Rode o <b>caldeirao_supabase.sql</b> no SQL Editor do Supabase.</p>':'')}}
 const exSel=()=>`<select onchange="ST.ex=this.value;go(CUR)">${ST.exams.map(e=>`<option value="${e.id}" ${e.id==ST.ex?'selected':''}>${esc(e.name)} (${esc(e.code)})</option>`).join('')}</select>`;
 let CUR='dash';
 const noEx=()=>'<p>Crie uma prova primeiro (menu Provas).</p>';
