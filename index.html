@@ -4,57 +4,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>A Mansão do Dr. Eletrônio</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="favicon.png">
 <meta name="description" content="Prova bimestral de Química: eletronegatividade, 1º ano do ensino médio.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="A Mansão do Dr. Eletrônio">
-<meta property="og:description" content="Prova bimestral de Química: eletronegatividade, 1º ano do ensino médio.">
-<meta property="og:image" content="https://max-1984w.github.io/jogo-educacional-de-quimica/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#07040d;--card:#120a1f;--tx:#efe6ff;--mut:#a58bd0;--ac:#b6ff00;--ac2:#a64dff;--bad:#ff4d6d;--ln:#3a1f66}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#2a0b4d 0%,var(--bg) 55%) fixed;color:var(--tx);font:16px/1.5 Georgia,'Times New Roman',serif}
-main{max-width:760px;margin:0 auto;padding:16px}
-h1{font-size:1.7rem;margin:.2em 0;color:var(--ac);text-shadow:0 0 12px var(--ac),0 0 28px #7a1fd1;letter-spacing:1px}h2{font-size:1.2rem;color:var(--ac2)}
-.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 0 22px rgba(166,77,255,.25)}
-.story{border-left:4px solid var(--ac2);padding-left:12px;color:var(--mut);font-style:italic}
-input,textarea,button,select{font:inherit;border-radius:10px;border:1px solid var(--ln);padding:10px 12px;background:var(--bg);color:var(--tx);width:100%;margin:6px 0}
-textarea{min-height:90px}
-button{background:var(--ac);color:#0a0614;font-weight:700;cursor:pointer;border:0}
-button.sec{background:transparent;color:var(--tx);border:1px solid var(--ln);width:auto;margin-right:6px}
-button:disabled{opacity:.4;cursor:not-allowed}
-.opt{display:block;text-align:left;background:var(--bg);color:var(--tx);border:2px solid var(--ln);font-weight:500}
-.opt.on{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 15%,var(--bg))}
-.bar{height:8px;background:var(--ln);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
-table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{padding:6px;border-bottom:1px solid var(--ln);text-align:left}
-.wrap{overflow-x:auto}.err{color:var(--bad)}.ok{color:var(--ac)}.code{font:700 1.1rem monospace;word-break:break-all;color:var(--ac2)}
-.w{width:80px;margin:0}
-
-:root{--bg:#050308;--card:#0e0916;--tx:#f1ecf8;--mut:#9d8fb5;--ac:#b8ff1a;--ac2:#8a2be2;--bad:#ff5470;--ln:#4b2a7a}
-*{border-radius:0!important}
-body{background:var(--bg);font:16px/1.55 Arial,Helvetica,sans-serif}
-main{max-width:720px;padding:20px 16px 48px}
-h1{font:900 2rem/1.05 Impact,'Arial Black',Arial,sans-serif;letter-spacing:.5px;text-shadow:none;color:var(--tx);margin:.3em 0 .2em}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#050308;--card:#0e0916;--tx:#f1ecf8;--mut:#9d8fb5;--ac:#b8ff1a;--ac2:#8a2be2;--bad:#ff5470;--ln:#4b2a7a}
+*{box-sizing:border-box;border-radius:0!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--tx);font:16px/1.55 Arial,Helvetica,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font:900 2rem/1.05 Impact,'Arial Black',Arial,sans-serif;letter-spacing:.5px;color:var(--tx);margin:.3em 0 .2em}
 h2{font:700 1.1rem Arial,sans-serif;color:var(--ac);margin:.2em 0 .6em}
 .card{background:var(--card);border:2px solid var(--ln);box-shadow:6px 6px 0 var(--ac2);padding:20px;margin:18px 0}
 .story{border:1px solid var(--ln);background:#000;padding:12px 14px;font:normal .95rem/1.6 'Courier New',Courier,monospace;color:#c9bbe8}
-input,textarea,select{border:2px solid var(--ln);background:#000}
-button{background:var(--ac);color:#050308;border:2px solid var(--ac);font-weight:800;padding:12px 16px}
+input,textarea,button,select{font:inherit;border:2px solid var(--ln);padding:10px 12px;background:#000;color:var(--tx);width:100%;margin:6px 0}
+textarea{min-height:90px}
+button{background:var(--ac);color:#050308;border:2px solid var(--ac);font-weight:800;padding:12px 16px;cursor:pointer}
 button:hover:not(:disabled){background:#050308;color:var(--ac)}
-button.sec{background:transparent;color:var(--tx);border:2px solid var(--ln)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.sec{background:transparent;color:var(--tx);border:2px solid var(--ln);width:auto;margin-right:6px}
 button.sec:hover{border-color:var(--ac);color:var(--ac)}
-.opt{display:flex;gap:12px;align-items:flex-start;background:#000;border:2px solid var(--ln);font-weight:500}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;background:#000;border:2px solid var(--ln);color:var(--tx);font-weight:500}
 .opt:hover:not(:disabled){background:#000;color:var(--tx);border-color:var(--ac2)}
 .opt.on,.opt.on:hover{background:#12091f;border-color:var(--ac);color:var(--tx)}
 .ltr{flex:none;width:28px;height:28px;display:grid;place-items:center;background:var(--ln);color:var(--tx);font-weight:800}
 .opt.on .ltr{background:var(--ac);color:#050308}
 .seg{display:flex;gap:4px;margin:10px 0 0}.seg i{flex:1;height:10px;background:var(--ln)}.seg i.d{background:var(--ac2)}.seg i.c{background:var(--ac)}
-th{color:var(--ac)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{padding:6px;border-bottom:1px solid var(--ln);text-align:left}th{color:var(--ac)}
+.wrap{overflow-x:auto}.err{color:var(--bad)}.ok{color:var(--ac)}.code{font:700 1.1rem monospace;word-break:break-all;color:var(--ac2)}
+.w{width:80px;margin:0}
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
 .pad{display:flex;gap:8px;margin-top:12px}.pad button{width:auto;flex:1;margin:0;padding:18px 0;touch-action:none;user-select:none}
 </style>
@@ -62,9 +38,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <body>
 <main id="app"></main>
 <script>
+const INTRO="Na noite de Halloween, você entra na mansão abandonada do Dr. Eletrônio Von Atrakt, um cientista louco que roubou os elétrons da cidade para ressuscitar seus monstros. A porta se tranca atrás de você! Para fugir, é preciso abrir 10 portas assombradas, cada uma com uma pergunta de química. Cuidado: a mansão não avisa se você errou…";
 const Q=[
-{s:"Na noite de Halloween, você entra na mansão abandonada do Dr. Eletrônio Von Atrakt, um cientista louco que roubou os elétrons da cidade para ressuscitar seus monstros. A porta se tranca atrás de você! Para fugir, é preciso abrir 10 portas assombradas, cada uma com uma pergunta de química. Cuidado: a mansão não avisa se você errou…",
- t:"A primeira porta exibe a pergunta: o que é eletronegatividade?",o:["A capacidade de um átomo perder prótons","A tendência de um átomo atrair elétrons em uma ligação química","A quantidade de nêutrons do núcleo","A massa atômica de um elemento"],a:1},
+{s:"Uma porta coberta de teias exibe uma inscrição brilhante: a fechadura só abre para quem souber a resposta.",
+ t:"O que é eletronegatividade?",o:["A capacidade de um átomo perder prótons","A tendência de um átomo atrair elétrons em uma ligação química","A quantidade de nêutrons do núcleo","A massa atômica de um elemento"],a:1},
 {s:"A porta range e revela uma cripta de frascos borbulhantes e luz verde. Uma risada ecoa: “Só passa quem conhece o rei dos elétrons!”",
  t:"Qual é o elemento mais eletronegativo da tabela periódica?",o:["Oxigênio","Cloro","Flúor","Césio"],a:2},
 {s:"Na parede, um líquido verde-ácido desenha setas sobre uma tabela periódica rasgada, mas elas estão embaralhadas.",
@@ -81,7 +58,7 @@ const Q=[
  t:"Por que os gases nobres geralmente não têm valores de eletronegatividade atribuídos?",o:["Porque são radioativos","Porque praticamente não formam ligações químicas","Porque não têm elétrons","Porque são muito pesados"],a:1},
 {s:"A mansão começa a inundar de uma água escura e a única saída é pela válvula da molécula de água.",
  t:"Na molécula de H₂O, qual átomo atrai mais fortemente os elétrons compartilhados?",o:["Os dois hidrogênios, por serem dois","O oxigênio, por ser mais eletronegativo","Nenhum, a atração é igual","O hidrogênio, por ser menor"],a:1},
-{s:"A última porta! O Dr. Eletrônio surge das sombras, furioso: “Ordene os quatro e eu devolvo os elétrons da cidade… ou fique aqui para sempre!”",
+{s:"O Dr. Eletrônio surge das sombras, furioso: “Ordene os quatro e eu devolvo os elétrons da cidade… ou fique aqui para sempre!”",
  t:"Qual é a ordem decrescente de eletronegatividade entre C, N, O e F?",o:["C, N, O, F","O, F, N, C","F, O, N, C","N, F, C, O"],a:2}
 ];
 const K="drE_",mem={};
@@ -106,11 +83,11 @@ if(!n.trim()||hash(norm(n))!==c)return home("Nome ou código inválido. Confira 
 const done=ls("done_"+c);if(done){try{if(done.sent&&!await rpc("ja_enviou",{p_codigo:c})){ls("done_"+c,null);ls("st_"+c,null)}else return finish(done)}catch(e){return finish(done)}}
 try{if(!await rpc("existe",{p_codigo:c}))return home("Este código não está cadastrado. Fale com o professor.");
 if(await rpc("ja_enviou",{p_codigo:c}))return home("A prova deste aluno já foi enviada.")}catch(e){}
-st=ls("st_"+c)||{n:n.trim(),c,i:0,a:Q.map(()=>null),p:perm(c)};if(!st.p)st.p=Q.map((_,i)=>i);q()}
-function perm(c){let h=0;for(const ch of c+"PROVA")h=(h*31+ch.charCodeAt(0))>>>0;
-const r=()=>{h=(h+0x6D2B79F5)>>>0;let t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
-const m=Q.map((_,i)=>i).slice(1,-1);for(let i=m.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[m[i],m[j]]=[m[j],m[i]]}
-return [0,...m,Q.length-1]}
+st=ls("st_"+c)||{n:n.trim(),c,i:0,a:Q.map(()=>null),p:perm(c),op:ops(c)};if(!st.p)st.p=Q.map((_,i)=>i);if(!st.op)st.op=ops(c);q()}
+function rng(seed){let h=0;for(const ch of seed)h=(h*31+ch.charCodeAt(0))>>>0;return()=>{h=(h+0x6D2B79F5)>>>0;let t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function shuf(n,r){const m=Array.from({length:n},(_,i)=>i);for(let i=n-1;i>0;i--){const j=Math.floor(r()*(i+1));[m[i],m[j]]=[m[j],m[i]]}return m}
+function perm(c){return shuf(Q.length,rng(c+"PROVA"))}
+function ops(c){const r=rng(c+"OPCOES");return Q.map(()=>shuf(4,r))}
 /* JOGO DE PLATAFORMA */
 const SEC=640,GW=800,GH=400;
 let G=null,raf=0,last=0,acc=0;
@@ -119,65 +96,151 @@ const nk=e=>e.key.length===1?e.key.toLowerCase():e.key;
 function kd(e){if(!G)return;const k=nk(e);if(!G.paused&&["ArrowLeft","ArrowRight","ArrowUp"," "].includes(k))e.preventDefault();G.k[k]=1}
 function ku(e){if(G)G.k[nk(e)]=0}
 function stopGame(){cancelAnimationFrame(raf);G=null;removeEventListener("keydown",kd);removeEventListener("keyup",ku)}
-function q(){if(st.i>=Q.length){stopGame();const d={n:st.n,c:st.c,a:st.a,code:mk(st),sent:false};ls("done_"+st.c,d);return send(d)}startGame()}
+function q(){if(st.i>=Q.length){if(!st.won)return startBoss();stopGame();const d={n:st.n,c:st.c,a:st.a,code:mk(st),op:st.op,sent:false};ls("done_"+st.c,d);return send(d)}startGame()}
 function hud(){$("pn").textContent=Math.min(st.i+1,Q.length);$("sg").innerHTML=Q.map((_,k)=>`<i class="${k<st.i?"d":k===st.i?"c":""}"></i>`).join("")}
 function ovShow(h){const o=$("ov");o.style.display="block";o.innerHTML=`<div class="card" style="max-width:720px;margin:0 auto">${h}</div>`}
 function startGame(){
 stopGame();
-app.innerHTML=`<h1>Porta <span id="pn"></span> de ${Q.length}</h1><div class="seg" id="sg"></div>
+app.innerHTML=`<h1>Fase <span id="pn"></span> de ${Q.length}</h1><div class="seg" id="sg"></div>
 <canvas id="cv" width="${GW}" height="${GH}" style="width:100%;display:block;margin-top:12px;border:2px solid var(--ln);box-shadow:6px 6px 0 var(--ac2);background:#000;image-rendering:pixelated"></canvas>
-<div class="pad"><button class="sec" id="tl">Esquerda</button><button class="sec" id="tr">Direita</button><button id="tj">Pular</button></div>
-<p style="color:var(--mut);font-size:.9rem">Setas ou A e D para andar. Espaço ou seta para cima para pular. Pule em cima dos fantasmas para derrotá-los. Chegue à porta para responder.</p>
+<div class="pad"><button class="sec" id="tl">Esquerda</button><button class="sec" id="tr">Direita</button><button class="sec" id="tc">Correr</button><button id="tj">Pular</button></div>
+<p style="color:var(--mut);font-size:.9rem">Setas ou A e D para andar. Espaço ou seta para cima para pular (segure para pular mais alto). Shift ou X para correr. Pule em cima dos fantasmas, bata nos blocos "?" por baixo para soltar elétrons e chegue à porta para responder.</p>
 <div id="ov" style="display:none;position:fixed;inset:0;z-index:50;overflow:auto;background:rgba(5,3,8,.96);padding:calc(16px + env(safe-area-inset-top,0px)) 16px 32px"></div>`;
 const so=[],en=[],co=[];
-for(let k=0;k<Q.length;k++){const o=k*SEC,pit=k%2===1;
+{const k=st.i,o=0,pit=k%2===1;
  if(pit)so.push({x:o,y:320,w:260,h:80},{x:o+350,y:320,w:SEC-350,h:80});else so.push({x:o,y:320,w:SEC,h:80});
- if(k%3===2){so.push({x:o+380,y:250,w:80,h:14});co.push({x:o+414,y:226})}
+ if(k%3===2){so.push({x:o+360,y:250,w:32,h:32,b:1},{x:o+392,y:250,w:32,h:32,q:1},{x:o+424,y:250,w:32,h:32,b:1});co.push({x:o+402,y:226})}
+ if(k%3===1){so.push({x:o+140,y:240,w:32,h:32,b:1},{x:o+172,y:240,w:32,h:32,q:1},{x:o+204,y:240,w:32,h:32,b:1})}
+ if(!pit&&k>0)so.push({x:o+330,y:280,w:40,h:40,t:1});
  if(pit)[275,305,335].forEach((d,j)=>co.push({x:o+d,y:j===1?215:230}));else[420,450,480].forEach(d=>co.push({x:o+d,y:292}));
  if(k>0&&k%2===0)en.push({x:o+120,a:o+120,b:o+300,y:288,d:1,alive:true})}
-so.push({x:Q.length*SEC,y:320,w:300,h:80});
-G={x:st.i*SEC+40,y:288,w:22,h:32,vx:0,vy:0,g:false,f:1,k:{},n:0,hurt:0,paused:false,so,en,co};
+so.push({x:SEC,y:320,w:300,h:80});
+G={x:40,y:288,w:22,h:32,vx:0,vy:0,g:false,f:1,k:{},n:0,hurt:0,paused:false,so,en,co,fx:[]};
 hud();
-const tb={tl:"ArrowLeft",tr:"ArrowRight",tj:" "};
+const tb={tl:"ArrowLeft",tr:"ArrowRight",tj:" ",tc:"Shift"};
 for(const id in tb){const b=$(id);b.onpointerdown=e=>{e.preventDefault();if(G)G.k[tb[id]]=1};["onpointerup","onpointerleave","onpointercancel"].forEach(h=>b[h]=()=>{if(G)G.k[tb[id]]=0})}
 addEventListener("keydown",kd);addEventListener("keyup",ku);
-if(st.i===0&&!st.intro){G.paused=true;ovShow(`<p class="story">${esc(Q[0].s)}</p><h2>Como jogar</h2><p>Use as setas (ou A e D) para andar e Espaço (ou seta para cima) para pular. Pule em cima dos fantasmas para derrotá-los e cuidado com os buracos. Chegue até cada porta para responder uma pergunta.</p><p>Cair ou esbarrar em um fantasma só faz você voltar ao começo da fase. A nota depende apenas das suas respostas, e a mansão não avisa quais estão certas.</p><button onclick="begin()">Começar</button>`)}
+if(st.i===0&&!st.intro){G.paused=true;ovShow(`<p class="story">${esc(INTRO)}</p><h2>Como jogar</h2><p>Use as setas (ou A e D) para andar, Espaço (ou seta para cima) para pular e Shift (ou X) para correr. Pule em cima dos fantasmas para derrotá-los, bata nos blocos "?" por baixo para soltar elétrons e cuidado com os buracos e os tubos de ensaio. Cada fase termina numa porta com uma pergunta.</p><p>Cair ou esbarrar em um fantasma só faz você voltar ao começo da fase. A nota depende apenas das suas respostas, e a mansão não avisa quais estão certas.</p><button onclick="begin()">Começar</button>`)}
 last=0;acc=0;raf=requestAnimationFrame(loop)}
 function begin(){st.intro=1;$("ov").style.display="none";G.paused=false}
-function ask(){G.paused=true;G.k={};const x=Q[st.p[st.i]];st.sel=null;
-ovShow(`<p style="color:var(--mut);margin:0 0 8px">Porta ${st.i+1} de ${Q.length}</p>${st.p[st.i]===0?"":`<p class="story">${esc(x.s)}</p>`}<h2>${esc(x.t)}</h2>${x.o.map((o,j)=>`<button class="opt" onclick="pick(${j})"><b class="ltr">${"ABCD"[j]}</b><span>${esc(o)}</span></button>`).join("")}<button id="go" disabled onclick="next()">Confirmar e abrir a porta</button>`)}
-function die(){G.x=st.i*SEC+40;G.y=288;G.vx=G.vy=0;G.hurt=40}
+function ask(){G.paused=true;G.k={};const x=Q[st.p[st.i]],ord=st.op[st.p[st.i]];st.sel=null;
+ovShow(`<p style="color:var(--mut);margin:0 0 8px">Fase ${st.i+1} de ${Q.length}</p><p class="story">${esc(x.s)}</p><h2>${esc(x.t)}</h2>${ord.map((oi,j)=>`<button class="opt" onclick="pick(${j})"><b class="ltr">${"ABCD"[j]}</b><span>${esc(x.o[oi])}</span></button>`).join("")}<button id="go" disabled onclick="next()">Confirmar e abrir a porta</button>`)}
+function die(){G.x=40;G.y=288;G.vx=G.vy=0;G.hurt=40}
 function step(){
-const p=G,k=p.k,ax=(k.ArrowRight||k.d?1:0)-(k.ArrowLeft||k.a?1:0);
-p.vx=ax*3.6;if(ax)p.f=ax;
-if((k[" "]||k.ArrowUp||k.w)&&p.g){p.vy=-12.5;p.g=false}
+if(G.boss)return stepBoss();
+const p=G,k=p.k,ax=(k.ArrowRight||k.d?1:0)-(k.ArrowLeft||k.a?1:0),run=k.Shift||k.x;
+p.vx=ax*(run?5.4:3.6);if(ax)p.f=ax;
+const jk=k[" "]||k.ArrowUp||k.w;
+if(jk&&p.g){p.vy=-12.5;p.g=false}
+if(!jk&&p.vy<-4)p.vy=-4;
 p.vy=Math.min(p.vy+.6,14);
 p.x=Math.max(0,p.x+p.vx);
 if(p.vx)for(const s of p.so)if(hit(p,s))p.x=p.vx>0?s.x-p.w:s.x+s.w;
 p.y+=p.vy;p.g=false;
-for(const s of p.so)if(hit(p,s)){if(p.vy>0){p.y=s.y-p.h;p.g=true}else p.y=s.y+s.h;p.vy=0}
+for(const s of p.so)if(hit(p,s)){if(p.vy>0){p.y=s.y-p.h;p.g=true}else{p.y=s.y+s.h;if(s.q&&!s.u){s.u=1;p.n++;p.fx.push({x:s.x+10,y:s.y-6,t:24})}}p.vy=0}
 if(p.y>GH+60)return die();
 if(p.hurt>0)p.hurt--;
+p.fx=p.fx.filter(f=>--f.t>0);p.fx.forEach(f=>f.y-=1.5);
 for(const c of p.co)if(!c.t&&hit(p,{x:c.x,y:c.y,w:12,h:12})){c.t=1;p.n++}
 for(const e of p.en){if(!e.alive)continue;e.x+=e.d;if(e.x<e.a||e.x>e.b)e.d*=-1;
  if(!p.hurt&&hit(p,{x:e.x,y:e.y,w:28,h:32})){if(p.vy>0&&p.y+p.h-p.vy<=e.y+12){e.alive=false;p.vy=-8}else return die()}}
-const d=st.i*SEC+560;if(st.i<Q.length&&p.x+p.w>=d&&p.x<=d+40)ask()}
+const d=560;if(st.i<Q.length&&p.x+p.w>=d&&p.x<=d+40)ask()}
 function loop(t){if(!G)return;acc+=Math.min(t-last,100);last=t;while(acc>=16.67){if(!G.paused)step();acc-=16.67}draw();raf=requestAnimationFrame(loop)}
 function draw(){
-const c=$("cv").getContext("2d"),p=G,cam=Math.max(0,Math.min(p.x-320,Q.length*SEC+300-GW));
+if(G.boss)return drawBoss();
+const c=$("cv").getContext("2d"),p=G,cam=Math.max(0,Math.min(p.x-320,SEC+300-GW));
 c.fillStyle="#050308";c.fillRect(0,0,GW,GH);
 c.fillStyle="#8a2be2";c.fillRect(650,36,56,56);c.fillStyle="#4b2a7a";c.fillRect(664,50,20,20);
 for(let i=0;i<8;i++){const x=((i*190-cam*.35)%1520+1520)%1520-120,h=110+(i*53%90);c.fillStyle="#0e0916";c.fillRect(x,320-h,150,h);c.fillStyle=i%3?"#1a0f2e":"rgba(184,255,26,.55)";c.fillRect(x+30,320-h+28,14,18);c.fillRect(x+90,320-h+28,14,18)}
-for(const s of p.so){const x=s.x-cam;if(x>GW||x+s.w<0)continue;c.fillStyle="#1a0f2e";c.fillRect(x,s.y,s.w,s.h);c.fillStyle="#8a2be2";c.fillRect(x,s.y,s.w,6)}
-for(let k=0;k<Q.length;k++){const x=k*SEC+560-cam;if(x<-60||x>GW)continue;const open=k<st.i;
+for(const s of p.so){const x=s.x-cam;if(x>GW||x+s.w<0)continue;
+ if(s.q){c.fillStyle=s.u?"#2a1a44":"#b8ff1a";c.fillRect(x,s.y,s.w,s.h);c.strokeStyle="#050308";c.lineWidth=2;c.strokeRect(x+1,s.y+1,s.w-2,s.h-2);if(!s.u){c.fillStyle="#050308";c.font="bold 20px Arial";c.fillText("?",x+11,s.y+23)}}
+ else if(s.b){c.fillStyle="#4b2a7a";c.fillRect(x,s.y,s.w,s.h);c.strokeStyle="#1a0f2e";c.lineWidth=2;c.strokeRect(x+1,s.y+1,s.w-2,s.h-2);c.beginPath();c.moveTo(x,s.y+16);c.lineTo(x+s.w,s.y+16);c.moveTo(x+16,s.y);c.lineTo(x+16,s.y+16);c.moveTo(x+8,s.y+16);c.lineTo(x+8,s.y+s.h);c.moveTo(x+24,s.y+16);c.lineTo(x+24,s.y+s.h);c.stroke()}
+ else if(s.t){c.fillStyle="#1a0f2e";c.fillRect(x,s.y,s.w,s.h);c.fillStyle="rgba(184,255,26,.6)";c.fillRect(x+4,s.y+12,s.w-8,s.h-12);c.fillStyle="#f1ecf8";c.fillRect(x-3,s.y,s.w+6,8);c.fillStyle="rgba(241,236,248,.5)";c.fillRect(x+8,s.y+14,4,s.h-18)}
+ else{c.fillStyle="#1a0f2e";c.fillRect(x,s.y,s.w,s.h);c.fillStyle="#8a2be2";c.fillRect(x,s.y,s.w,6)}}
+for(const k of [st.i]){const x=560-cam;if(x<-60||x>GW)continue;const open=false;
  c.fillStyle="#4b2a7a";c.fillRect(x-4,252,48,68);c.fillStyle=open?"#000":"#8a2be2";c.fillRect(x,256,40,64);
  if(!open){c.fillStyle="#b8ff1a";c.fillRect(x+30,290,5,5);c.fillStyle="#f1ecf8";c.font="bold 16px Arial";c.fillText(k+1,x+(k>8?10:15),282)}}
 for(const o of p.co){if(o.t)continue;const x=o.x-cam;c.fillStyle="#b8ff1a";c.fillRect(x,o.y,12,12);c.fillStyle="#050308";c.fillRect(x+4,o.y+4,4,4)}
+for(const f of p.fx){c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("+1",f.x-cam,f.y)}
 for(const e of p.en){if(!e.alive)continue;const x=e.x-cam;c.fillStyle="#f1ecf8";c.fillRect(x,e.y,28,24);[0,1,2].forEach(i=>{if(i!==1)c.fillRect(x+i*10,e.y+24,8,8)});c.fillStyle="#050308";c.fillRect(x+6,e.y+6,5,6);c.fillRect(x+17,e.y+6,5,6)}
 if(!(p.hurt>0&&(p.hurt>>2)%2)){const x=p.x-cam,y=p.y;c.fillStyle="#4b2a7a";c.fillRect(x+3,y+26,6,6);c.fillRect(x+13,y+26,6,6);c.fillStyle="#f1ecf8";c.fillRect(x+1,y+13,20,13);c.fillStyle="#b8ff1a";c.fillRect(x+1,y+12,20,3);c.fillStyle="#e8d5c4";c.fillRect(x+4,y+2,14,11);c.fillStyle="#8a2be2";c.fillRect(x+3,y,16,5);c.fillStyle="#050308";c.fillRect(x+(p.f>0?13:6),y+7,3,3)}
 c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("Elétrons: "+p.n,12,24)}
-function pick(j){st.sel=j;document.querySelectorAll(".opt").forEach((b,k)=>b.classList.toggle("on",k===j));$("go").disabled=false}
-function next(){st.a[st.p[st.i]]=st.sel;st.i++;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a,p:st.p,intro:1});$("ov").style.display="none";G.k={};hud();G.paused=false;if(st.i>=Q.length)q()}
+/* CHEFAO FINAL */
+const swd=()=>({x:G.f>0?G.x+G.w:G.x-52,y:G.y+4,w:52,h:22});
+function startBoss(again){
+stopGame();
+app.innerHTML=`<h1>Chefão final</h1>
+<canvas id="cv" width="${GW}" height="${GH}" style="width:100%;display:block;margin-top:12px;border:2px solid var(--ln);box-shadow:6px 6px 0 var(--ac2);background:#000;image-rendering:pixelated"></canvas>
+<div class="pad"><button class="sec" id="tl">Esquerda</button><button class="sec" id="tr">Direita</button><button class="sec" id="tj">Pular</button><button id="ta">Espada</button></div>
+<p style="color:var(--mut);font-size:.9rem">Setas ou A e D para andar, Espaço para pular, J ou Z para golpear com a Espada de Elétrons. Faixa vermelha no chão: pule. Linhas verticais: saia do lugar antes do raio cair.</p>
+<div id="ov" style="display:none;position:fixed;inset:0;z-index:50;overflow:auto;background:rgba(5,3,8,.96);padding:calc(16px + env(safe-area-inset-top,0px)) 16px 32px"></div>`;
+const so=[{x:0,y:320,w:GW,h:80},{x:110,y:240,w:110,h:14},{x:590,y:240,w:110,h:14}];
+G={boss:1,x:60,y:288,w:22,h:32,vx:0,vy:0,g:false,f:1,k:{},hp:3,inv:0,atk:0,pa:0,hitDone:false,paused:true,so,fx:[],wt:0,b:{x:640,hp:12,inv:0,flash:0,s:"walk",t:90,k:"low",xs:[]}};
+const tb={tl:"ArrowLeft",tr:"ArrowRight",tj:" ",ta:"j"};
+for(const id in tb){const b=$(id);b.onpointerdown=e=>{e.preventDefault();if(G)G.k[tb[id]]=1};["onpointerup","onpointerleave","onpointercancel"].forEach(h=>b[h]=()=>{if(G)G.k[tb[id]]=0})}
+addEventListener("keydown",kd);addEventListener("keyup",ku);
+if(again)G.paused=false;else ovShow(`<p class="story">Você abre a última porta e entra no laboratório do Dr. Eletrônio. Ele ergue uma bobina de Tesla e os raios começam a cair. Os elétrons roubados da cidade se juntam na sua mão e formam a Espada de Elétrons!</p><h2>Como lutar</h2><p>Use J ou Z (ou o botão Espada) para golpear. Quando a bobina brilhar, ele vai atacar: uma faixa vermelha no chão é um raio rasteiro, então pule. Linhas verticais marcam onde os raios vão cair, então saia do lugar. Você tem 3 vidas de energia e pode tentar quantas vezes precisar.</p><p>Suas respostas já foram guardadas: o chefão não muda a nota.</p><button onclick="bossGo()">Lutar</button>`);
+last=0;acc=0;raf=requestAnimationFrame(loop)}
+function bossGo(){$("ov").style.display="none";G.paused=false}
+function bossWin(){st.won=1;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a,p:st.p,op:st.op,intro:1,won:1});q()}
+function hurtB(){const p=G,b=p.b;p.hp--;p.inv=70;p.vy=-7;p.x=Math.max(0,Math.min(GW-p.w,p.x+(p.x<b.x?-40:40)));
+if(p.hp<=0){p.paused=true;p.k={};st.bf=(st.bf||0)+1;ovShow(`<h2>Você foi derrotado</h2><p>Os raios do Dr. Eletrônio foram mais rápidos. Suas respostas já estão guardadas.</p><button onclick="startBoss(1)">Tentar de novo</button>${st.bf>=3?'<button class="sec" style="margin-top:8px" onclick="bossWin()">Enviar a prova sem derrotar o chefão</button>':""}`)}}
+function stepBoss(){
+const p=G,k=p.k,b=p.b,ax=(k.ArrowRight||k.d?1:0)-(k.ArrowLeft||k.a?1:0),alive=b.hp>0;
+p.vx=alive?ax*(k.Shift?5:3.6):0;if(ax&&alive)p.f=ax;
+const jk=k[" "]||k.ArrowUp||k.w;
+if(jk&&p.g&&alive){p.vy=-12.5;p.g=false}
+if(!jk&&p.vy<-4)p.vy=-4;
+p.vy=Math.min(p.vy+.6,14);
+p.x=Math.max(0,Math.min(GW-p.w,p.x+p.vx));
+if(p.vx)for(const s of p.so)if(hit(p,s))p.x=p.vx>0?s.x-p.w:s.x+s.w;
+p.y+=p.vy;p.g=false;
+for(const s of p.so)if(hit(p,s)){if(p.vy>0){p.y=s.y-p.h;p.g=true}else p.y=s.y+s.h;p.vy=0}
+const a=k.j||k.z||k.k;if(a&&!p.pa&&p.atk<=0&&alive){p.atk=16;p.hitDone=false}p.pa=a;
+if(p.atk>0)p.atk--;if(p.inv>0)p.inv--;if(b.inv>0)b.inv--;if(b.flash>0)b.flash--;
+const body={x:b.x,y:232,w:44,h:88};
+if(!alive){p.wt++;if(p.wt===70){p.paused=true;p.k={};ovShow(`<h2>Dr. Eletrônio derrotado!</h2><p>A bobina de Tesla se apaga, os elétrons voltam para a cidade e a porta da mansão se abre. Falta só enviar a sua prova.</p><button onclick="bossWin()">Enviar prova</button>`)}return}
+if(p.atk>0&&!p.hitDone&&b.inv<=0&&hit(swd(),body)){p.hitDone=true;b.hp--;b.inv=14;b.flash=10;b.x=Math.min(740,b.x+16)}
+const ph2=b.hp<=6;
+if(b.s==="walk"){b.x=Math.max(300,Math.min(740,b.x+Math.sign(p.x-b.x)*(ph2?1:.6)));
+ if(--b.t<=0){b.k=Math.random()<.5?"low":"sky";const cx=p.x+11;b.xs=b.k==="sky"?[cx,Math.max(20,cx-140),Math.min(780,cx+140)]:[];b.s="charge";b.t=ph2?32:45}}
+else if(b.s==="charge"){if(--b.t<=0){b.s="fire";b.t=26}}
+else{const zs=b.k==="low"?[{x:0,y:288,w:b.x-30,h:32}]:b.xs.map(x=>({x:x-14,y:0,w:28,h:320}));
+ if(!p.inv&&zs.some(z=>hit(p,z)))hurtB();
+ if(--b.t<=0){b.s="walk";b.t=ph2?60:100}}
+if(!p.paused&&!p.inv&&hit(p,body))hurtB()}
+function bolt(c,x1,y1,x2,y2,w){c.strokeStyle="#b8ff1a";c.lineWidth=w;c.beginPath();c.moveTo(x1,y1);const n=8;for(let i=1;i<n;i++){const t=i/n;c.lineTo(x1+(x2-x1)*t+(Math.random()-.5)*18,y1+(y2-y1)*t+(Math.random()-.5)*18)}c.lineTo(x2,y2);c.stroke();c.strokeStyle="#f1ecf8";c.lineWidth=w/2;c.stroke()}
+function drawBoss(){
+const c=$("cv").getContext("2d"),p=G,b=p.b;
+c.fillStyle="#050308";c.fillRect(0,0,GW,GH);
+c.fillStyle="#8a2be2";c.fillRect(650,36,56,56);c.fillStyle="#4b2a7a";c.fillRect(664,50,20,20);
+for(let i=0;i<5;i++){const x=i*190-60,h=110+(i*53%90);c.fillStyle="#0e0916";c.fillRect(x,320-h,150,h);c.fillStyle=i%3?"#1a0f2e":"rgba(184,255,26,.55)";c.fillRect(x+30,320-h+28,14,18);c.fillRect(x+90,320-h+28,14,18)}
+for(const s of p.so){c.fillStyle="#1a0f2e";c.fillRect(s.x,s.y,s.w,s.h);c.fillStyle="#8a2be2";c.fillRect(s.x,s.y,s.w,6)}
+const ch=b.s!=="walk",bx=b.x;
+c.setLineDash([10,8]);c.lineWidth=3;
+if(b.s==="charge"){c.strokeStyle="rgba(255,84,112,.8)";if(b.k==="low"){c.strokeRect(0,290,bx-30,28)}else b.xs.forEach(x=>{c.beginPath();c.moveTo(x,0);c.lineTo(x,320);c.stroke()})}
+c.setLineDash([]);
+if(b.hp>0||(p.wt%6<3)){
+ c.fillStyle="#4b2a7a";c.fillRect(bx+6,296,12,24);c.fillRect(bx+26,296,12,24);
+ c.fillStyle=b.flash>0&&b.flash%4<2?"#ff5470":"#f1ecf8";c.fillRect(bx,244,44,54);
+ c.fillStyle="#b8ff1a";c.fillRect(bx,244,44,4);c.fillRect(bx+20,248,4,50);
+ c.fillStyle="#e8d5c4";c.fillRect(bx+8,222,28,24);
+ c.fillStyle="#f1ecf8";c.fillRect(bx+4,214,36,10);[0,10,20,30].forEach(i=>c.fillRect(bx+4+i,206,6,10));
+ c.fillStyle="#b8ff1a";c.fillRect(bx+10,230,10,8);c.fillRect(bx+24,230,10,8);
+ c.fillStyle="#050308";c.fillRect(bx+12,232,4,4);c.fillRect(bx+26,232,4,4);
+ c.fillStyle=b.flash>0&&b.flash%4<2?"#ff5470":"#f1ecf8";c.fillRect(bx-10,256,14,8);
+ c.fillStyle="#4b2a7a";c.fillRect(bx-22,250,16,30);
+ c.fillStyle="#8a2be2";c.fillRect(bx-17,226,6,26);
+ c.fillStyle=ch?"#b8ff1a":"#8a2be2";c.beginPath();c.arc(bx-14,220,ch?12:9,0,7);c.fill();
+ if(ch&&b.hp>0)bolt(c,bx-14,220,bx-14+(Math.random()-.5)*50,196-Math.random()*20,2)}
+if(b.s==="fire"){if(b.k==="low"){bolt(c,bx-14,220,bx-30,304,5);bolt(c,bx-30,304,0,304,5)}else b.xs.forEach(x=>{c.fillStyle="rgba(184,255,26,.25)";c.fillRect(x-14,0,28,320);bolt(c,x,0,x,320,6)})}
+if(!(p.inv>0&&(p.inv>>2)%2)){const x=p.x,y=p.y;c.fillStyle="#4b2a7a";c.fillRect(x+3,y+26,6,6);c.fillRect(x+13,y+26,6,6);c.fillStyle="#f1ecf8";c.fillRect(x+1,y+13,20,13);c.fillStyle="#b8ff1a";c.fillRect(x+1,y+12,20,3);c.fillStyle="#e8d5c4";c.fillRect(x+4,y+2,14,11);c.fillStyle="#8a2be2";c.fillRect(x+3,y,16,5);c.fillStyle="#050308";c.fillRect(x+(p.f>0?13:6),y+7,3,3)}
+if(p.atk>0){const w=swd();c.fillStyle="rgba(184,255,26,.35)";c.fillRect(w.x,w.y,w.w,w.h);c.fillStyle="#b8ff1a";c.fillRect(w.x,w.y+8,w.w,6);c.fillStyle="#f1ecf8";c.fillRect(w.x,w.y+10,w.w,2);bolt(c,w.x,w.y+11,w.x+w.w,w.y+11,2)}
+else{c.fillStyle="#b8ff1a";c.fillRect(p.f>0?p.x+20:p.x-8,p.y+14,10,4);c.fillStyle="#f1ecf8";c.fillRect(p.f>0?p.x+20:p.x-8,p.y+15,10,2)}
+c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("Vida: "+"♥".repeat(Math.max(0,p.hp)),12,24);
+c.fillText("Dr. Eletrônio",GW-232,24);c.strokeStyle="#4b2a7a";c.lineWidth=2;c.strokeRect(GW-232,30,220,14);c.fillStyle="#ff5470";c.fillRect(GW-230,32,216*Math.max(0,b.hp)/12,10)}
+function pick(j){st.sel=st.op[st.p[st.i]][j];document.querySelectorAll(".opt").forEach((b,k)=>b.classList.toggle("on",k===j));$("go").disabled=false}
+function next(){st.a[st.p[st.i]]=st.sel;st.i++;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a,p:st.p,op:st.op,intro:1});$("ov").style.display="none";q()}
 function mk(s){const p=s.n+"|"+s.a.join("");return btoa(unescape(encodeURIComponent(p+"|"+hash(p))))}
 async function send(d){app.innerHTML='<div class="card"><p>Enviando sua prova…</p></div>';
 try{d.sent=!!await rpc("enviar",{p_codigo:d.c,p_respostas:d.a.join("")});d.err=d.sent?"":"O servidor recusou o envio (prova já enviada ou código não cadastrado)."}catch(e){d.err="Sem conexão com o servidor."}
@@ -187,7 +250,7 @@ function finish(d){
 const hit=d.a.map((v,i)=>v===Q[i].a),n=hit.filter(Boolean).length;
 app.innerHTML=`<h1>Você escapou da mansão</h1><div class="card"><p>${esc(d.n)}, prova finalizada. Você acertou <b class="ok">${n}</b> de ${Q.length} portas. A nota oficial será divulgada pelo professor.</p>
 ${d.sent?'<p class="ok"><b>Prova enviada ao professor.</b></p>':`<p class="err"><b>Prova ainda não enviada.</b> ${esc(d.err||"")}</p><button onclick="retry('${d.c}')">Tentar enviar de novo</button><p>Se não conseguir, mostre este código ao professor:</p><div class="code">${d.code}</div>`}</div>
-<div class="card"><h2>Revisão</h2>${Q.map((x,i)=>`<p><b class="${hit[i]?"ok":"err"}">${hit[i]?"Certa":"Errada"}</b> <b>Questão ${i+1}:</b> ${esc(x.t)}<br><span style="color:var(--mut)">Resposta certa: ${"ABCD"[x.a]}) ${esc(x.o[x.a])}</span></p>`).join("")}</div>
+<div class="card"><h2>Revisão</h2>${Q.map((x,i)=>`<p><b class="${hit[i]?"ok":"err"}">${hit[i]?"Certa":"Errada"}</b> <b>Questão ${i+1}:</b> ${esc(x.t)}<br><span style="color:var(--mut)">Resposta certa: ${"ABCD"[(d.op?d.op[i]:[0,1,2,3]).indexOf(x.a)]}) ${esc(x.o[x.a])}</span></p>`).join("")}</div>
 <button class="sec" onclick="home()">Sair</button>`}
 
 /* PROFESSOR */
