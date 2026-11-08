@@ -78,7 +78,7 @@ const Q=[
  t:"Uma diferença de eletronegatividade muito grande entre os átomos (como Na e Cl) tende a formar ligação:",o:["Covalente apolar","Covalente polar fraca","Iônica","Nenhuma, pois não haverá ligação"],a:2},
 {s:"Atrás de um vidro rachado, hélio e neônio brilham como fantasmas nos tubos. O Dr. Eletrônio provoca: “Esses espectros não valem nada na minha tabela!”",
  t:"Por que os gases nobres geralmente não têm valores de eletronegatividade atribuídos?",o:["Porque são radioativos","Porque praticamente não formam ligações químicas","Porque não têm elétrons","Porque são muito pesados"],a:1},
-{s:"Quase lá! A mansão começa a inundar de uma água escura e a única saída é pela válvula da molécula de água.",
+{s:"A mansão começa a inundar de uma água escura e a única saída é pela válvula da molécula de água.",
  t:"Na molécula de H₂O, qual átomo atrai mais fortemente os elétrons compartilhados?",o:["Os dois hidrogênios, por serem dois","O oxigênio, por ser mais eletronegativo","Nenhum, a atração é igual","O hidrogênio, por ser menor"],a:1},
 {s:"A última porta! O Dr. Eletrônio surge das sombras, furioso: “Ordene os quatro e eu devolvo os elétrons da cidade… ou fique aqui para sempre!”",
  t:"Qual é a ordem decrescente de eletronegatividade entre C, N, O e F?",o:["C, N, O, F","O, F, N, C","F, O, N, C","N, F, C, O"],a:2}
@@ -102,19 +102,23 @@ async function rpc(fn,a){const r=await fetch(SB+"/rest/v1/rpc/"+fn,{method:"POST
 async function login(){
 const n=$("nm").value,c=$("cd").value.trim().toUpperCase();
 if(!n.trim()||hash(norm(n))!==c)return home("Nome ou código inválido. Confira com seu professor.");
-const done=ls("done_"+c);if(done)return finish(done);
+const done=ls("done_"+c);if(done){try{if(done.sent&&!await rpc("ja_enviou",{p_codigo:c})){ls("done_"+c,null);ls("st_"+c,null)}else return finish(done)}catch(e){return finish(done)}}
 try{if(!await rpc("existe",{p_codigo:c}))return home("Este código não está cadastrado. Fale com o professor.");
 if(await rpc("ja_enviou",{p_codigo:c}))return home("A prova deste aluno já foi enviada.")}catch(e){}
-st=ls("st_"+c)||{n:n.trim(),c,i:0,a:[]};q()}
+st=ls("st_"+c)||{n:n.trim(),c,i:0,a:Q.map(()=>null),p:perm(c)};if(!st.p)st.p=Q.map((_,i)=>i);q()}
+function perm(c){let h=0;for(const ch of c+"PROVA")h=(h*31+ch.charCodeAt(0))>>>0;
+const r=()=>{h=(h+0x6D2B79F5)>>>0;let t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
+const m=Q.map((_,i)=>i).slice(1,-1);for(let i=m.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[m[i],m[j]]=[m[j],m[i]]}
+return [0,...m,Q.length-1]}
 function q(msg){
 if(st.i>=Q.length){const d={n:st.n,c:st.c,a:st.a,code:mk(st),sent:false};ls("done_"+st.c,d);return send(d)}
-const x=Q[st.i];st.sel=null;
+const x=Q[st.p[st.i]];st.sel=null;
 app.innerHTML=`<h1>Porta ${st.i+1} de ${Q.length}</h1><div class="seg">${Q.map((_,k)=>`<i class="${k<st.i?"d":k===st.i?"c":""}"></i>`).join("")}</div>
 <div class="card"><p class="story">${esc(x.s)}</p><h2>${esc(x.t)}</h2>
 ${x.o.map((o,j)=>`<button class="opt" id="o${j}" onclick="pick(${j})"><b class="ltr">${"ABCD"[j]}</b><span>${esc(o)}</span></button>`).join("")}
 <button id="go" disabled onclick="next()">Confirmar e abrir a porta</button></div>`}
 function pick(j){st.sel=j;document.querySelectorAll(".opt").forEach((b,k)=>b.classList.toggle("on",k===j));$("go").disabled=false}
-function next(){st.a.push(st.sel);st.i++;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a});
+function next(){st.a[st.p[st.i]]=st.sel;st.i++;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a,p:st.p});
 if(st.i<Q.length){app.innerHTML=`<div class="card"><p class="story">A porta range… as velas se apagam e algo sussurra no escuro. Você avança.</p><button onclick="q()">Continuar</button></div>`}else q()}
 function mk(s){const p=s.n+"|"+s.a.join("");return btoa(unescape(encodeURIComponent(p+"|"+hash(p))))}
 async function send(d){app.innerHTML='<div class="card"><p>Enviando sua prova…</p></div>';
@@ -125,7 +129,7 @@ function finish(d){
 const hit=d.a.map((v,i)=>v===Q[i].a),n=hit.filter(Boolean).length;
 app.innerHTML=`<h1>Você escapou da mansão</h1><div class="card"><p>${esc(d.n)}, prova finalizada. Você acertou <b class="ok">${n}</b> de ${Q.length} portas. A nota oficial será divulgada pelo professor.</p>
 ${d.sent?'<p class="ok"><b>Prova enviada ao professor.</b></p>':`<p class="err"><b>Prova ainda não enviada.</b> ${esc(d.err||"")}</p><button onclick="retry('${d.c}')">Tentar enviar de novo</button><p>Se não conseguir, mostre este código ao professor:</p><div class="code">${d.code}</div>`}</div>
-<div class="card"><h2>Revisão</h2>${Q.map((x,i)=>`<p><b class="${hit[i]?"ok":"err"}">${hit[i]?"Certa":"Errada"}</b> <b>Porta ${i+1}:</b> ${esc(x.t)}<br><span style="color:var(--mut)">Resposta certa: ${"ABCD"[x.a]}) ${esc(x.o[x.a])}</span></p>`).join("")}</div>
+<div class="card"><h2>Revisão</h2>${Q.map((x,i)=>`<p><b class="${hit[i]?"ok":"err"}">${hit[i]?"Certa":"Errada"}</b> <b>Questão ${i+1}:</b> ${esc(x.t)}<br><span style="color:var(--mut)">Resposta certa: ${"ABCD"[x.a]}) ${esc(x.o[x.a])}</span></p>`).join("")}</div>
 <button class="sec" onclick="home()">Sair</button>`}
 
 /* PROFESSOR */
@@ -139,8 +143,8 @@ async function refresh(){try{await load();panel()}catch(e){panel("Erro: "+e.mess
 function panel(msg=""){
 const T=W.reduce((a,b)=>a+b,0),loc=ls("res")||{},sc=a=>a.reduce((s,v,i)=>s+(v===Q[i].a?W[i]:0),0),ok=a=>a.filter((v,i)=>v===Q[i].a).length;
 const names=new Set(DATA.map(r=>norm(r.nome)));
-const rows=DATA.map(r=>{const a=r.respostas?r.respostas.split("").map(Number):null;return `<tr><td>${esc(r.nome)}</td><td class="code" style="font-size:.9rem">${esc(r.codigo)}</td><td>${a?"Enviou":"Pendente"}</td><td>${a?ok(a)+"/"+Q.length:"-"}</td><td><b>${a?fmt(sc(a)):"-"}</b></td></tr>`}).join("")
-+Object.entries(loc).filter(([k])=>!names.has(k)).map(([k,r])=>`<tr><td>${esc(r.n)}</td><td>-</td><td>Importado</td><td>${ok(r.a)}/${Q.length}</td><td><b>${fmt(sc(r.a))}</b></td></tr>`).join("");
+const rows=DATA.map(r=>{const a=r.respostas?r.respostas.split("").map(Number):null;return `<tr><td>${esc(r.nome)}</td><td class="code" style="font-size:.9rem">${esc(r.codigo)}</td><td>${a?"Enviou":"Pendente"}</td><td>${a?ok(a)+"/"+Q.length:"-"}</td><td><b>${a?fmt(sc(a)):"-"}</b></td><td>${a?`<button class="sec" style="margin:0 6px 0 0;padding:6px 10px" onclick="liberar('${esc(r.codigo)}')">Liberar</button>`:""}<button class="sec" style="margin:0 6px 0 0;padding:6px 10px" onclick="excluir('${esc(r.codigo)}')">Excluir</button></td></tr>`}).join("")
++Object.entries(loc).filter(([k])=>!names.has(k)).map(([k,r])=>`<tr><td>${esc(r.n)}</td><td>-</td><td>Importado</td><td>${ok(r.a)}/${Q.length}</td><td><b>${fmt(sc(r.a))}</b></td><td>-</td></tr>`).join("");
 app.innerHTML=`<h1>Painel do professor</h1><button class="sec" onclick="home()">Sair</button><button class="sec" onclick="refresh()">Atualizar dados</button><div class="err">${esc(msg)}</div>
 <div class="card"><h2>PIN do professor</h2><input id="np" placeholder="Novo PIN (mínimo 4 caracteres)"><button onclick="setPin()">Alterar PIN</button></div>
 <div class="card"><h2>1. Contas dos alunos</h2><p style="color:var(--mut)">Um nome por linha. O código de cada aluno é gerado e salvo no banco.</p>
@@ -148,8 +152,10 @@ app.innerHTML=`<h1>Painel do professor</h1><button class="sec" onclick="home()">
 <div class="card"><h2>2. Valor da prova e de cada questão</h2><p>Valor total da prova: <select id="tot" style="width:auto" onchange="setTot(this.value)">${Array.from({length:11},(_,i)=>5+i/2).map(v=>`<option value="${v}"${v===T?" selected":""}>${fmt(v)}</option>`).join("")}</select> <span style="color:var(--mut)">(de 5 a 10, passos de 0,5; ao mudar, os pesos são redistribuídos)</span></p>
 <p>Soma das questões: <b class="${T>=5&&T<=10?"ok":"err"}">${fmt(T)}</b> ${T>=5&&T<=10?"":"(fora de 5 a 10: ajuste)"}</p>
 <div class="wrap"><table><tr>${W.map((v,i)=>`<td>Q${i+1}<input class="w" type="number" min="0" max="10" step="0.5" value="${v}" onchange="setW(${i},this.value)"></td>`).join("")}</tr></table></div></div>
-<div class="card"><h2>3. Alunos e resultados</h2><div class="wrap"><table><tr><th>Aluno</th><th>Código</th><th>Situação</th><th>Acertos</th><th>Nota</th></tr>${rows}</table></div>
+<div class="card"><h2>3. Alunos e resultados</h2><div class="wrap"><table><tr><th>Aluno</th><th>Código</th><th>Situação</th><th>Acertos</th><th>Nota</th><th>Ações</th></tr>${rows}</table></div>
 <p style="color:var(--mut)">Reserva: se um aluno não conseguiu enviar, cole o código de entrega dele aqui, um por linha.</p><textarea id="imp"></textarea><button onclick="imp()">Importar</button></div>`}
+async function liberar(c){if(!confirm("Apagar a prova enviada deste aluno e permitir que ele refaça?"))return;try{await rpc("prof_liberar",{p_pin:PIN,p_codigo:c});await load();panel("Prova liberada. O aluno já pode entrar de novo.")}catch(e){panel("Erro: "+e.message)}}
+async function excluir(c){if(!confirm("Excluir este aluno e a prova dele? Não dá para desfazer."))return;try{await rpc("prof_excluir_aluno",{p_pin:PIN,p_codigo:c});await load();panel("Aluno excluído.")}catch(e){panel("Erro: "+e.message)}}
 async function saveAl(){const l=$("lst").value.split("\n").map(s=>s.trim()).filter(Boolean);try{await Promise.all(l.map(n=>rpc("prof_salvar_aluno",{p_pin:PIN,p_codigo:hash(norm(n)),p_nome:n})));await load();panel("Alunos salvos.")}catch(e){panel("Erro: "+e.message)}}
 async function setW(i,v){v=Math.round(parseFloat(v||0)*2)/2;try{await rpc("prof_salvar_peso",{p_pin:PIN,p_questao:i+1,p_peso:v});W[i]=v;panel()}catch(e){panel("Erro: "+e.message)}}
 async function setTot(v){const d=dist(parseFloat(v));try{await Promise.all(d.map((p,i)=>rpc("prof_salvar_peso",{p_pin:PIN,p_questao:i+1,p_peso:p})));W=d;panel()}catch(e){panel("Erro: "+e.message)}}
