@@ -56,6 +56,7 @@ button.sec:hover{border-color:var(--ac);color:var(--ac)}
 .seg{display:flex;gap:4px;margin:10px 0 0}.seg i{flex:1;height:10px;background:var(--ln)}.seg i.d{background:var(--ac2)}.seg i.c{background:var(--ac)}
 th{color:var(--ac)}
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.pad{display:flex;gap:8px;margin-top:12px}.pad button{width:auto;flex:1;margin:0;padding:18px 0;touch-action:none;user-select:none}
 </style>
 </head>
 <body>
@@ -110,16 +111,73 @@ function perm(c){let h=0;for(const ch of c+"PROVA")h=(h*31+ch.charCodeAt(0))>>>0
 const r=()=>{h=(h+0x6D2B79F5)>>>0;let t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
 const m=Q.map((_,i)=>i).slice(1,-1);for(let i=m.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[m[i],m[j]]=[m[j],m[i]]}
 return [0,...m,Q.length-1]}
-function q(msg){
-if(st.i>=Q.length){const d={n:st.n,c:st.c,a:st.a,code:mk(st),sent:false};ls("done_"+st.c,d);return send(d)}
-const x=Q[st.p[st.i]];st.sel=null;
-app.innerHTML=`<h1>Porta ${st.i+1} de ${Q.length}</h1><div class="seg">${Q.map((_,k)=>`<i class="${k<st.i?"d":k===st.i?"c":""}"></i>`).join("")}</div>
-<div class="card"><p class="story">${esc(x.s)}</p><h2>${esc(x.t)}</h2>
-${x.o.map((o,j)=>`<button class="opt" id="o${j}" onclick="pick(${j})"><b class="ltr">${"ABCD"[j]}</b><span>${esc(o)}</span></button>`).join("")}
-<button id="go" disabled onclick="next()">Confirmar e abrir a porta</button></div>`}
+/* JOGO DE PLATAFORMA */
+const SEC=640,GW=800,GH=400;
+let G=null,raf=0,last=0,acc=0;
+const hit=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+const nk=e=>e.key.length===1?e.key.toLowerCase():e.key;
+function kd(e){if(!G)return;const k=nk(e);if(!G.paused&&["ArrowLeft","ArrowRight","ArrowUp"," "].includes(k))e.preventDefault();G.k[k]=1}
+function ku(e){if(G)G.k[nk(e)]=0}
+function stopGame(){cancelAnimationFrame(raf);G=null;removeEventListener("keydown",kd);removeEventListener("keyup",ku)}
+function q(){if(st.i>=Q.length){stopGame();const d={n:st.n,c:st.c,a:st.a,code:mk(st),sent:false};ls("done_"+st.c,d);return send(d)}startGame()}
+function hud(){$("pn").textContent=Math.min(st.i+1,Q.length);$("sg").innerHTML=Q.map((_,k)=>`<i class="${k<st.i?"d":k===st.i?"c":""}"></i>`).join("")}
+function ovShow(h){const o=$("ov");o.style.display="block";o.innerHTML=`<div class="card" style="max-width:720px;margin:0 auto">${h}</div>`}
+function startGame(){
+stopGame();
+app.innerHTML=`<h1>Porta <span id="pn"></span> de ${Q.length}</h1><div class="seg" id="sg"></div>
+<canvas id="cv" width="${GW}" height="${GH}" style="width:100%;display:block;margin-top:12px;border:2px solid var(--ln);box-shadow:6px 6px 0 var(--ac2);background:#000;image-rendering:pixelated"></canvas>
+<div class="pad"><button class="sec" id="tl">Esquerda</button><button class="sec" id="tr">Direita</button><button id="tj">Pular</button></div>
+<p style="color:var(--mut);font-size:.9rem">Setas ou A e D para andar. Espaço ou seta para cima para pular. Pule em cima dos fantasmas para derrotá-los. Chegue à porta para responder.</p>
+<div id="ov" style="display:none;position:fixed;inset:0;z-index:50;overflow:auto;background:rgba(5,3,8,.96);padding:calc(16px + env(safe-area-inset-top,0px)) 16px 32px"></div>`;
+const so=[],en=[],co=[];
+for(let k=0;k<Q.length;k++){const o=k*SEC,pit=k%2===1;
+ if(pit)so.push({x:o,y:320,w:260,h:80},{x:o+350,y:320,w:SEC-350,h:80});else so.push({x:o,y:320,w:SEC,h:80});
+ if(k%3===2){so.push({x:o+380,y:250,w:80,h:14});co.push({x:o+414,y:226})}
+ if(pit)[275,305,335].forEach((d,j)=>co.push({x:o+d,y:j===1?215:230}));else[420,450,480].forEach(d=>co.push({x:o+d,y:292}));
+ if(k>0&&k%2===0)en.push({x:o+120,a:o+120,b:o+300,y:288,d:1,alive:true})}
+so.push({x:Q.length*SEC,y:320,w:300,h:80});
+G={x:st.i*SEC+40,y:288,w:22,h:32,vx:0,vy:0,g:false,f:1,k:{},n:0,hurt:0,paused:false,so,en,co};
+hud();
+const tb={tl:"ArrowLeft",tr:"ArrowRight",tj:" "};
+for(const id in tb){const b=$(id);b.onpointerdown=e=>{e.preventDefault();if(G)G.k[tb[id]]=1};["onpointerup","onpointerleave","onpointercancel"].forEach(h=>b[h]=()=>{if(G)G.k[tb[id]]=0})}
+addEventListener("keydown",kd);addEventListener("keyup",ku);
+if(st.i===0&&!st.intro){G.paused=true;ovShow(`<p class="story">${esc(Q[0].s)}</p><h2>Como jogar</h2><p>Use as setas (ou A e D) para andar e Espaço (ou seta para cima) para pular. Pule em cima dos fantasmas para derrotá-los e cuidado com os buracos. Chegue até cada porta para responder uma pergunta.</p><p>Cair ou esbarrar em um fantasma só faz você voltar ao começo da fase. A nota depende apenas das suas respostas, e a mansão não avisa quais estão certas.</p><button onclick="begin()">Começar</button>`)}
+last=0;acc=0;raf=requestAnimationFrame(loop)}
+function begin(){st.intro=1;$("ov").style.display="none";G.paused=false}
+function ask(){G.paused=true;G.k={};const x=Q[st.p[st.i]];st.sel=null;
+ovShow(`<p style="color:var(--mut);margin:0 0 8px">Porta ${st.i+1} de ${Q.length}</p>${st.p[st.i]===0?"":`<p class="story">${esc(x.s)}</p>`}<h2>${esc(x.t)}</h2>${x.o.map((o,j)=>`<button class="opt" onclick="pick(${j})"><b class="ltr">${"ABCD"[j]}</b><span>${esc(o)}</span></button>`).join("")}<button id="go" disabled onclick="next()">Confirmar e abrir a porta</button>`)}
+function die(){G.x=st.i*SEC+40;G.y=288;G.vx=G.vy=0;G.hurt=40}
+function step(){
+const p=G,k=p.k,ax=(k.ArrowRight||k.d?1:0)-(k.ArrowLeft||k.a?1:0);
+p.vx=ax*3.6;if(ax)p.f=ax;
+if((k[" "]||k.ArrowUp||k.w)&&p.g){p.vy=-12.5;p.g=false}
+p.vy=Math.min(p.vy+.6,14);
+p.x=Math.max(0,p.x+p.vx);
+if(p.vx)for(const s of p.so)if(hit(p,s))p.x=p.vx>0?s.x-p.w:s.x+s.w;
+p.y+=p.vy;p.g=false;
+for(const s of p.so)if(hit(p,s)){if(p.vy>0){p.y=s.y-p.h;p.g=true}else p.y=s.y+s.h;p.vy=0}
+if(p.y>GH+60)return die();
+if(p.hurt>0)p.hurt--;
+for(const c of p.co)if(!c.t&&hit(p,{x:c.x,y:c.y,w:12,h:12})){c.t=1;p.n++}
+for(const e of p.en){if(!e.alive)continue;e.x+=e.d;if(e.x<e.a||e.x>e.b)e.d*=-1;
+ if(!p.hurt&&hit(p,{x:e.x,y:e.y,w:28,h:32})){if(p.vy>0&&p.y+p.h-p.vy<=e.y+12){e.alive=false;p.vy=-8}else return die()}}
+const d=st.i*SEC+560;if(st.i<Q.length&&p.x+p.w>=d&&p.x<=d+40)ask()}
+function loop(t){if(!G)return;acc+=Math.min(t-last,100);last=t;while(acc>=16.67){if(!G.paused)step();acc-=16.67}draw();raf=requestAnimationFrame(loop)}
+function draw(){
+const c=$("cv").getContext("2d"),p=G,cam=Math.max(0,Math.min(p.x-320,Q.length*SEC+300-GW));
+c.fillStyle="#050308";c.fillRect(0,0,GW,GH);
+c.fillStyle="#8a2be2";c.fillRect(650,36,56,56);c.fillStyle="#4b2a7a";c.fillRect(664,50,20,20);
+for(let i=0;i<8;i++){const x=((i*190-cam*.35)%1520+1520)%1520-120,h=110+(i*53%90);c.fillStyle="#0e0916";c.fillRect(x,320-h,150,h);c.fillStyle=i%3?"#1a0f2e":"rgba(184,255,26,.55)";c.fillRect(x+30,320-h+28,14,18);c.fillRect(x+90,320-h+28,14,18)}
+for(const s of p.so){const x=s.x-cam;if(x>GW||x+s.w<0)continue;c.fillStyle="#1a0f2e";c.fillRect(x,s.y,s.w,s.h);c.fillStyle="#8a2be2";c.fillRect(x,s.y,s.w,6)}
+for(let k=0;k<Q.length;k++){const x=k*SEC+560-cam;if(x<-60||x>GW)continue;const open=k<st.i;
+ c.fillStyle="#4b2a7a";c.fillRect(x-4,252,48,68);c.fillStyle=open?"#000":"#8a2be2";c.fillRect(x,256,40,64);
+ if(!open){c.fillStyle="#b8ff1a";c.fillRect(x+30,290,5,5);c.fillStyle="#f1ecf8";c.font="bold 16px Arial";c.fillText(k+1,x+(k>8?10:15),282)}}
+for(const o of p.co){if(o.t)continue;const x=o.x-cam;c.fillStyle="#b8ff1a";c.fillRect(x,o.y,12,12);c.fillStyle="#050308";c.fillRect(x+4,o.y+4,4,4)}
+for(const e of p.en){if(!e.alive)continue;const x=e.x-cam;c.fillStyle="#f1ecf8";c.fillRect(x,e.y,28,24);[0,1,2].forEach(i=>{if(i!==1)c.fillRect(x+i*10,e.y+24,8,8)});c.fillStyle="#050308";c.fillRect(x+6,e.y+6,5,6);c.fillRect(x+17,e.y+6,5,6)}
+if(!(p.hurt>0&&(p.hurt>>2)%2)){const x=p.x-cam,y=p.y;c.fillStyle="#4b2a7a";c.fillRect(x+3,y+26,6,6);c.fillRect(x+13,y+26,6,6);c.fillStyle="#f1ecf8";c.fillRect(x+1,y+13,20,13);c.fillStyle="#b8ff1a";c.fillRect(x+1,y+12,20,3);c.fillStyle="#e8d5c4";c.fillRect(x+4,y+2,14,11);c.fillStyle="#8a2be2";c.fillRect(x+3,y,16,5);c.fillStyle="#050308";c.fillRect(x+(p.f>0?13:6),y+7,3,3)}
+c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("Elétrons: "+p.n,12,24)}
 function pick(j){st.sel=j;document.querySelectorAll(".opt").forEach((b,k)=>b.classList.toggle("on",k===j));$("go").disabled=false}
-function next(){st.a[st.p[st.i]]=st.sel;st.i++;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a,p:st.p});
-if(st.i<Q.length){app.innerHTML=`<div class="card"><p class="story">A porta range… as velas se apagam e algo sussurra no escuro. Você avança.</p><button onclick="q()">Continuar</button></div>`}else q()}
+function next(){st.a[st.p[st.i]]=st.sel;st.i++;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a,p:st.p,intro:1});$("ov").style.display="none";G.k={};hud();G.paused=false;if(st.i>=Q.length)q()}
 function mk(s){const p=s.n+"|"+s.a.join("");return btoa(unescape(encodeURIComponent(p+"|"+hash(p))))}
 async function send(d){app.innerHTML='<div class="card"><p>Enviando sua prova…</p></div>';
 try{d.sent=!!await rpc("enviar",{p_codigo:d.c,p_respostas:d.a.join("")});d.err=d.sent?"":"O servidor recusou o envio (prova já enviada ou código não cadastrado)."}catch(e){d.err="Sem conexão com o servidor."}
