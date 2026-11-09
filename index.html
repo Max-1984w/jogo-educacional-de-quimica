@@ -69,7 +69,7 @@ function hash(s){let h=5381;for(const c of s+"ELETRO26")h=((h<<5)+h+c.charCodeAt
 const $=id=>document.getElementById(id),app=$("app");
 let st=null;
 
-function home(msg=""){
+function home(msg=""){music("");
 app.innerHTML=`<h1>A Mansão do Dr. Eletrônio</h1><p style="color:var(--mut)">Prova bimestral de Química: eletronegatividade, 1º ano</p>
 <div class="card"><h2>Entrar na prova</h2><input id="nm" placeholder="Seu nome completo" autocomplete="off"><input id="cd" placeholder="Seu código (5 caracteres)" autocomplete="off" style="text-transform:uppercase">
 <div class="err">${msg}</div><button onclick="login()">Começar</button></div>
@@ -97,6 +97,67 @@ function kd(e){if(!G)return;const k=nk(e);if(!G.paused&&["ArrowLeft","ArrowRight
 function ku(e){if(G)G.k[nk(e)]=0}
 function stopGame(){cancelAnimationFrame(raf);G=null;removeEventListener("keydown",kd);removeEventListener("keyup",ku)}
 const mkc=(w,h)=>{const c=document.createElement("canvas");c.width=w;c.height=h;return c};
+
+/* SOM (gerado por codigo, sem arquivos) */
+let AC=null,MG=null,muted=!!ls("mute"),NB=null;
+function ac(){if(AC===null){try{AC=new(window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=muted?0:1;MG.connect(AC.destination)}catch(e){AC=0}}
+ if(AC&&AC.state==="suspended")AC.resume();return AC}
+function tn(f,d,type,v,sl,dl){const a=ac();if(!a)return;const t=a.currentTime+(dl||0),o=a.createOscillator(),g=a.createGain();
+ o.type=type||"square";o.frequency.setValueAtTime(f,t);if(sl)o.frequency.exponentialRampToValueAtTime(Math.max(20,f+sl),t+d);
+ g.gain.setValueAtTime(v||.1,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(MG);o.start(t);o.stop(t+d+.03)}
+function nz(d,v,fr,dl){const a=ac();if(!a)return;if(!NB){NB=a.createBuffer(1,a.sampleRate,a.sampleRate);const x=NB.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1}
+ const t=a.currentTime+(dl||0),s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=NB;f.type="lowpass";f.frequency.value=fr||1200;
+ g.gain.setValueAtTime(v||.15,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(MG);s.start(t);s.stop(t+d+.03)}
+const SFXD={
+ jump:()=>tn(300,.18,"square",.08,420),
+ land:()=>nz(.06,.1,420),
+ step:()=>nz(.03,.04,900),
+ swing:()=>{nz(.12,.1,2600);tn(520,.1,"sawtooth",.03,-320)},
+ hit:()=>{nz(.1,.22,1800);tn(190,.12,"square",.12,-110)},
+ boom:()=>{nz(.35,.3,900);tn(170,.3,"sawtooth",.12,-130)},
+ coin:()=>{tn(988,.07,"square",.07);tn(1319,.12,"square",.07,0,.07)},
+ block:()=>{tn(520,.1,"square",.09,220);tn(780,.12,"square",.09,0,.09)},
+ cp:()=>{[523,659,784].forEach((f,i)=>tn(f,.14,"triangle",.1,0,i*.08))},
+ die:()=>tn(420,.45,"sawtooth",.12,-340),
+ hurt:()=>{nz(.15,.2,700);tn(260,.2,"square",.12,-160)},
+ door:()=>{[300,450,600].forEach((f,i)=>tn(f,.12,"triangle",.12,0,i*.09))},
+ click:()=>tn(700,.04,"square",.05),
+ confirm:()=>{tn(440,.08,"triangle",.1);tn(660,.12,"triangle",.1,0,.07)},
+ blip:()=>tn(520+Math.random()*90,.05,"square",.05),
+ rise:()=>{tn(80,1,"sawtooth",.14,220);nz(.8,.12,500)},
+ roar:()=>{nz(.9,.28,320);tn(75,.9,"sawtooth",.18,60)},
+ charge:()=>tn(200,.5,"sawtooth",.04,650),
+ zap:()=>{nz(.3,.26,3200);tn(950,.25,"sawtooth",.08,-720)},
+ orb:()=>tn(720,.2,"sine",.1,-420),
+ whoosh:()=>nz(.25,.16,1900),
+ dash:()=>{nz(.4,.18,1400);tn(150,.4,"sawtooth",.07,320)},
+ slam:()=>{nz(.5,.36,220);tn(62,.4,"sine",.28,-30)},
+ dodge:()=>{nz(.18,.12,2600);tn(1000,.15,"triangle",.07,620)},
+ win:()=>{[523,659,784,1047].forEach((f,i)=>tn(f,.22,"triangle",.12,0,i*.12))},
+ lose:()=>{[330,262,196].forEach((f,i)=>tn(f,.3,"triangle",.12,0,i*.2))}
+};
+function sfx(n){try{SFXD[n]&&SFXD[n]()}catch(e){}}
+/* MUSICA em loop */
+const NOTE=n=>440*Math.pow(2,(n-69)/12);
+const MSEQ={
+ level:{st:.15,bass:[45,45,52,45,41,41,48,41,43,43,50,43,40,40,47,40],lead:[69,0,72,0,76,72,0,69,65,0,69,0,72,69,0,65,67,0,71,0,74,71,0,67,64,0,68,0,71,68,0,64],bt:"square",lt:"triangle",bv:.04,lv:.045},
+ gate:{st:.3,bass:[45,0,0,0,41,0,0,0,43,0,0,0,40,0,0,0],lead:[81,0,76,0,72,0,76,0,77,0,72,0,69,0,72,0,79,0,74,0,71,0,74,0,76,0,71,0,68,0,71,0],bt:"sine",lt:"triangle",bv:.08,lv:.04},
+ boss:{st:.11,bass:[40,40,52,40,43,40,46,40,40,40,52,40,41,40,44,40],lead:[76,0,0,76,75,0,0,0,76,0,79,0,76,0,75,0,71,0,0,71,70,0,0,0,71,0,74,0,71,0,70,0],bt:"sawtooth",lt:"square",bv:.045,lv:.028}
+};
+let MUS="",MT=0,MN=0,MI=null;
+function music(m){if(m===MUS)return;MUS=m;clearInterval(MI);MI=null;if(!m)return;const a=ac();if(!a)return;MT=a.currentTime+.1;MN=0;MI=setInterval(musTick,60)}
+function musTick(){try{const a=ac(),S=MSEQ[MUS];if(!a||!S)return;
+ const ph=MUS==="boss"&&G&&G.b?G.b.phase:1,st=S.st*(ph===2?.9:ph===3?.8:1);
+ if(MT<a.currentTime)MT=a.currentTime+.05;
+ while(MT<a.currentTime+.25){const i=MN%S.bass.length,j=MN%S.lead.length,dl=MT-a.currentTime;
+  if(S.bass[i])tn(NOTE(S.bass[i]),st*1.6,S.bt,S.bv,0,dl);
+  if(S.lead[j])tn(NOTE(S.lead[j]),st*1.8,S.lt,S.lv,0,dl);
+  if(MUS==="boss"&&MN%4===0)nz(.06,.07,220,dl);
+  MT+=st;MN++}}catch(e){}}
+function setMute(m){muted=m;ls("mute",m);if(MG)MG.gain.value=m?0:1;const b=$("mute");if(b)b.textContent=m?"Som: desligado":"Som: ligado"}
+(function(){const b=document.createElement("button");b.id="mute";b.className="sec";b.style.cssText="position:fixed;top:calc(8px + env(safe-area-inset-top,0px));right:8px;z-index:60;width:auto;margin:0;padding:6px 10px;font-size:.85rem;background:#050308";b.textContent=muted?"Som: desligado":"Som: ligado";b.onclick=()=>{ac();setMute(!muted)};document.body.appendChild(b);
+ ["pointerdown","keydown"].forEach(e=>addEventListener(e,()=>ac(),{passive:true}))})();
+
 
 /* SPRITES */
 const SW={"W": 28, "H": 30, "px": 5.7, "py": 24.8, "nat": -0.8445, "L": 32.7},BO={"W": 120, "H": 145, "cx": 66.2, "tx": 30.2, "ty": 33.4, "LY": 131};
@@ -160,7 +221,7 @@ function buildBricks(){
   t.fillStyle="#2a0a66";t.fillRect(bx+30,by,2,16);t.fillRect(bx,by+14,32,2)}
  const g=t.createLinearGradient(0,0,0,80);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(20,0,60,.55)");t.fillStyle=g;t.fillRect(0,0,64,80)}
 function camOf(p,VW,maxx,lead){const t=Math.max(0,Math.min(p.x-VW*lead,maxx));p.cam=p.cam==null?t:p.cam+(t-p.cam)*.18;return p.cam}
-function boom(p,x,y){for(let i=0;i<18;i++){const a=Math.random()*6.283,s=1.5+Math.random()*3.5;p.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.5,t:30+Math.floor(Math.random()*20),s:2+Math.floor(Math.random()*3),c:["#f1ecf8","#b8ff1a","#8a2be2","#ff2fd0"][i%4]})}p.rings.push({x,y,t:18})}
+function boom(p,x,y){sfx("boom");for(let i=0;i<18;i++){const a=Math.random()*6.283,s=1.5+Math.random()*3.5;p.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.5,t:30+Math.floor(Math.random()*20),s:2+Math.floor(Math.random()*3),c:["#f1ecf8","#b8ff1a","#8a2be2","#ff2fd0"][i%4]})}p.rings.push({x,y,t:18})}
 
 /* SALAO DO TRONO (fundo estatico + efeitos animados) */
 const HCOL=[20,300,580],HCYL=[[170,"#2ad4ff"],[440,"#b8ff1a"]],HCOIL=[355,620];
@@ -249,7 +310,7 @@ const CVS=`<canvas id="cv" width="${GW}" height="${GH}" style="width:100%;displa
 function bindPad(tb){for(const id in tb){const b=$(id);b.onpointerdown=e=>{e.preventDefault();if(G)G.k[tb[id]]=1};["onpointerup","onpointerleave","onpointercancel"].forEach(h=>b[h]=()=>{if(G)G.k[tb[id]]=0})}
 addEventListener("keydown",kd);addEventListener("keyup",ku)}
 function startGame(){
-stopGame();
+stopGame();music("level");
 app.innerHTML=`<h1>Fase <span id="pn"></span> de ${Q.length}</h1><div class="seg" id="sg"></div>${CVS}
 <div class="pad"><button class="sec" id="tl">Esquerda</button><button class="sec" id="tr">Direita</button><button class="sec" id="tc">Correr</button><button class="sec" id="ta">Espada</button><button id="tj">Pular</button></div>
 <p style="color:var(--mut);font-size:.9rem">Setas ou A e D para andar. Espaço ou seta para cima para pular (segure para pular mais alto). Shift ou X para correr. J ou Z para golpear com a espada. Pule em cima dos fantasmas (ou corte-os), bata nos blocos "?" por baixo para soltar elétrons e chegue à porta para responder. Bandeiras salvam seu ponto de retorno.</p>${OVDIV}`;
@@ -259,33 +320,34 @@ hud();bindPad({tl:"ArrowLeft",tr:"ArrowRight",tj:" ",tc:"Shift",ta:"j"});
 if(st.i===0&&!st.intro){G.paused=true;ovShow(`<p class="story">${esc(INTRO)}</p><h2>Como jogar</h2><p>Use as setas (ou A e D) para andar, Espaço (ou seta para cima) para pular e Shift (ou X) para correr. Golpeie com a espada usando J ou Z. Pule em cima dos fantasmas ou corte-os, bata nos blocos "?" por baixo para soltar elétrons e cuidado com os buracos e os tubos de ensaio. Cada fase é longa e termina numa porta com uma pergunta. Passe pelas bandeiras para salvar o ponto de retorno.</p><p>Cair ou esbarrar em um fantasma só faz você voltar à última bandeira. A nota depende apenas das suas respostas, e a mansão não avisa quais estão certas.</p><button onclick="begin()">Começar</button>`)}
 last=0;acc=0;raf=requestAnimationFrame(loop)}
 function begin(){st.intro=1;$("ov").style.display="none";G.paused=false}
-function ask(){G.paused=true;G.k={};const x=Q[st.p[st.i]],ord=st.op[st.p[st.i]];st.sel=null;
+function ask(){sfx("door");G.paused=true;G.k={};const x=Q[st.p[st.i]],ord=st.op[st.p[st.i]];st.sel=null;
 ovShow(`<p style="color:var(--mut);margin:0 0 8px">Fase ${st.i+1} de ${Q.length}</p><p class="story">${esc(x.s)}</p><h2>${esc(x.t)}</h2>${ord.map((oi,j)=>`<button class="opt" onclick="pick(${j})"><b class="ltr">${"ABCD"[j]}</b><span>${esc(x.o[oi])}</span></button>`).join("")}<button id="go" disabled onclick="next()">Confirmar e abrir a porta</button>`)}
-function die(){G.x=G.cp;G.y=288;G.vx=G.vy=0;G.hurt=40}
+function die(){sfx("die");G.x=G.cp;G.y=288;G.vx=G.vy=0;G.hurt=40}
 const swd=()=>({x:G.f>0?G.x+G.w:G.x-46,y:G.y-2,w:46,h:34});
 function step(){
 if(G.boss)return stepBoss();
 const p=G,k=p.k,ax=(k.ArrowRight||k.d?1:0)-(k.ArrowLeft||k.a?1:0),run=k.Shift||k.x;
 p.vx=ax*(run?5.4:3.6);if(ax)p.f=ax;
 const jk=k[" "]||k.ArrowUp||k.w;
-if(jk&&p.g){p.vy=-12.5;p.g=false}
+if(jk&&p.g){p.vy=-12.5;p.g=false;sfx("jump")}
 if(!jk&&p.vy<-4)p.vy=-4;
 p.vy=Math.min(p.vy+.6,14);
 p.x=Math.max(0,p.x+p.vx);
 if(p.vx)for(const s of p.so)if(hit(p,s))p.x=p.vx>0?s.x-p.w:s.x+s.w;
 p.y+=p.vy;p.g=false;
-for(const s of p.so)if(hit(p,s)){if(p.vy>0){p.y=s.y-p.h;p.g=true}else{p.y=s.y+s.h;if(s.q&&!s.u){s.u=1;p.n++;p.fx.push({x:s.x+10,y:s.y-6,t:24})}}p.vy=0}
+for(const s of p.so)if(hit(p,s)){if(p.vy>0){if(p.vy>5)sfx("land");p.y=s.y-p.h;p.g=true}else{p.y=s.y+s.h;if(s.q&&!s.u){s.u=1;p.n++;sfx("block");p.fx.push({x:s.x+10,y:s.y-6,t:24})}}p.vy=0}
 if(p.y>GH+60)return die();
 if(p.hurt>0)p.hurt--;
-const a=k.j||k.z;if(a&&!p.pa&&p.atk<=0)p.atk=16;p.pa=a;if(p.atk>0)p.atk--;
+if(p.g&&p.vx){p.sc=(p.sc||0)+Math.abs(p.vx);if(p.sc>46){p.sc=0;sfx("step")}}
+const a=k.j||k.z;if(a&&!p.pa&&p.atk<=0){p.atk=16;sfx("swing")}p.pa=a;if(p.atk>0)p.atk--;
 if(p.gate){p.x=Math.min(p.x,GW-p.w);
  if(!p.talked&&p.x+p.w>=370){p.talked=1;talk(0)}
  else if(p.talked===2&&p.x+p.w>=p.door){startBoss();return}
  return}
-for(const c of p.cps)if(p.x>c.x&&c.x>p.cp)p.cp=c.x;
+for(const c of p.cps)if(p.x>c.x&&c.x>p.cp){p.cp=c.x;sfx("cp")}
 p.fx=p.fx.filter(f=>--f.t>0);p.fx.forEach(f=>f.y-=1.5);
 if(p.parts){for(const q of p.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.18;q.t--}p.parts=p.parts.filter(q=>q.t>0);p.rings=p.rings.filter(r=>--r.t>0)}
-for(const c of p.co)if(!c.t&&hit(p,{x:c.x,y:c.y,w:12,h:12})){c.t=1;p.n++}
+for(const c of p.co)if(!c.t&&hit(p,{x:c.x,y:c.y,w:12,h:12})){c.t=1;p.n++;sfx("coin")}
 for(const e of p.en){if(!e.alive)continue;e.x+=e.d;if(e.x<e.a||e.x>e.b)e.d*=-1;
  if(p.atk>0&&hit(swd(),{x:e.x,y:e.y,w:28,h:32})){e.alive=false;boom(p,e.x+14,e.y+16);continue}
  if(!p.hurt&&hit(p,{x:e.x,y:e.y,w:28,h:32})){if(p.vy>0&&p.y+p.h-p.vy<=e.y+12){e.alive=false;boom(p,e.x+14,e.y+16);p.vy=-8}else return die()}}
@@ -341,12 +403,12 @@ c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("Elétrons: "+p.n,12,2
 
 /* PORTAO DO CASTELO + NPC */
 const NL=["Você conseguiu! Ninguém tinha passado pelas dez portas da mansão. Eu sou o Prof. Próton, o ajudante que o Dr. Eletrônio expulsou do laboratório.","Ele roubou os elétrons da cidade e os prendeu na bobina de Tesla que carrega na mão. Enquanto ele a segurar, a cidade fica no escuro.","Ele espera no salão do trono, dentro do castelo. Cuidado: ele pula, desvia dos seus golpes e contra-ataca. Quanto mais ferido, mais furioso: ele ganha ataques especiais, como investidas, saltos esmagadores e tempestades de raios. Cada golpe dele tira só meio coração, mas ele é resistente, então tenha paciência.","Leve esta espada, ela guarda a energia que sobrou da cidade. Golpeie com J ou Z. Boa sorte!"];
-function talk(i){
+function talk(i){sfx("blip");
  if(i>=NL.length){$("ov").style.display="none";G.talked=2;G.paused=false;return}
  G.paused=true;G.k={};
  ovShow(`<p style="color:var(--ac);font-weight:800;margin:0 0 8px">Prof. Próton</p><p class="story">${esc(NL[i])}</p><button onclick="talk(${i+1})">${i<NL.length-1?"Continuar":"Entrar no castelo"}</button>`)}
 function startGate(){
-stopGame();
+stopGame();music("gate");
 app.innerHTML=`<h1>O castelo do Dr. Eletrônio</h1>${CVS}
 <div class="pad"><button class="sec" id="tl">Esquerda</button><button class="sec" id="tr">Direita</button><button class="sec" id="tc">Correr</button><button class="sec" id="ta">Espada</button><button id="tj">Pular</button></div>
 <p style="color:var(--mut);font-size:.9rem">Converse com o Prof. Próton e depois entre pela porta do castelo, à direita. Suas respostas já foram guardadas.</p>${OVDIV}`;
@@ -392,7 +454,7 @@ function heartsDraw(c,hp){c.font="bold 20px Arial";for(let i=0;i<3;i++){const x=
 const bodyOf=b=>({x:b.x-b.w/2,y:b.fy-b.h,w:b.w,h:b.h});
 const phOf=b=>b.hp>BHP*2/3?1:b.hp>BHP/3?2:3;
 function startBoss(again){
-stopGame();
+stopGame();music("boss");
 app.innerHTML=`<h1>Salão do trono</h1>${CVS}
 <div class="pad"><button class="sec" id="tl">Esquerda</button><button class="sec" id="tr">Direita</button><button class="sec" id="tj">Pular</button><button id="ta">Espada</button></div>
 <p style="color:var(--mut);font-size:.9rem">Setas ou A e D para andar, Espaço para pular, J ou Z para golpear com a espada. Faixa vermelha: pule. Linhas verticais: saia do lugar. Orbes de energia: pule os baixos, fique no chão nos altos, ou corte-os. Quando ele ficar cansado depois de uma investida ou salto, aproveite para atacar.</p>${OVDIV}`;
@@ -405,8 +467,8 @@ if(again)G.paused=false;else ovShow(`<p class="story">As portas do castelo se fe
 last=0;acc=0;raf=requestAnimationFrame(loop)}
 function bossGo(){$("ov").style.display="none";G.paused=false}
 function bossWin(){st.won=1;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a,p:st.p,op:st.op,intro:1,won:1});q()}
-function hurtB(){const p=G,b=p.b;p.hp--;p.inv=30;p.vy=-6;p.x=Math.max(0,Math.min(GW-p.w,p.x+(p.x<b.x?-30:30)));
-if(p.hp<=0){p.paused=true;p.k={};st.bf=(st.bf||0)+1;ovShow(`<h2>Você foi derrotado</h2><p>Os ataques do Dr. Eletrônio foram mais rápidos. Suas respostas já estão guardadas.</p><button onclick="startBoss(1)">Tentar de novo</button>${st.bf>=3?'<button class="sec" style="margin-top:8px" onclick="bossWin()">Enviar a prova sem derrotar o chefão</button>':""}`)}}
+function hurtB(){sfx("hurt");const p=G,b=p.b;p.hp--;p.inv=30;p.vy=-6;p.x=Math.max(0,Math.min(GW-p.w,p.x+(p.x<b.x?-30:30)));
+if(p.hp<=0){sfx("lose");p.paused=true;p.k={};st.bf=(st.bf||0)+1;ovShow(`<h2>Você foi derrotado</h2><p>Os ataques do Dr. Eletrônio foram mais rápidos. Suas respostas já estão guardadas.</p><button onclick="startBoss(1)">Tentar de novo</button>${st.bf>=3?'<button class="sec" style="margin-top:8px" onclick="bossWin()">Enviar a prova sem derrotar o chefão</button>':""}`)}}
 /* animacao procedural do chefe: andar, golpear, desviar */
 function bossAnim(b){
  let fwd=0,sx=1,sy=1,spin=0,ll=0,rl=0,bob=0;const mv=b.g&&Math.abs(b.vx)>.4&&(b.s==="walk"||b.s==="dash");
@@ -444,7 +506,7 @@ function bossImg(c,img,x,fy,f,an,sh,clip){
 function bossRanged(b,p,kind){const ph=phOf(b),cx=p.x+11;
  if(kind==="storm"||kind==="storm2"){b.k="sky";const o=60+Math.random()*60;b.xs=[cx,Math.max(20,cx-o-60),Math.min(780,cx+o+60)];if(ph===3)b.xs.push(Math.max(20,Math.min(780,cx+(Math.random()<.5?-1:1)*o*.5)));if(kind==="storm")b.sq=1}
  else{b.k=kind||(Math.random()<.5?"low":"sky");b.xs=b.k==="sky"?[cx,Math.max(20,cx-140),Math.min(780,cx+140)]:[]}
- b.s="charge";b.t=kind==="storm2"?18:[0,42,34,28][ph];b.vx=0}
+ sfx("charge");b.s="charge";b.t=kind==="storm2"?18:[0,42,34,28][ph];b.vx=0}
 function bossJump(b,vx,vy,cn){b.s="jump";b.vy=vy;b.vx=vx;b.cn=cn;b.t=0;b.g=false}
 function bossSay(p,b,t){p.fx.push({x:Math.max(10,b.x-60),y:b.fy-b.h-34,t:55,tx:t})}
 function bossPick(b,p,dist,dir,ph){
@@ -457,28 +519,29 @@ function bossPick(b,p,dist,dir,ph){
  else if(ch==="hopf")bossJump(b,dir*3.6,-11,0);
  else if(ch==="ray")bossRanged(b,p);
  else if(ch==="orbs"){b.s="orbs";b.vx=0}
- else if(ch==="dashw"){b.s="dashw";b.dd=dir;b.f=dir;b.vx=0;b.spcd=150;bossSay(p,b,"Investida!")}
+ else if(ch==="dashw"){b.s="dashw";b.dd=dir;b.f=dir;b.vx=0;b.spcd=150;bossSay(p,b,"Investida!");sfx("whoosh")}
  else if(ch==="slam"){b.s="slamw";b.vx=0;b.spcd=150;bossSay(p,b,"Salto esmagador!")}
  else if(ch==="storm"){bossRanged(b,p,"storm");b.spcd=150;bossSay(p,b,"Tempestade!")}}
 function stepBoss(){
 const p=G,k=p.k,b=p.b,ax=(k.ArrowRight||k.d?1:0)-(k.ArrowLeft||k.a?1:0),alive=b.hp>0;
 p.vx=alive?ax*(k.Shift?5:3.6):0;if(ax&&alive)p.f=ax;
 const jk=k[" "]||k.ArrowUp||k.w;
-if(jk&&p.g&&alive){p.vy=-12.5;p.g=false}
+if(jk&&p.g&&alive){p.vy=-12.5;p.g=false;sfx("jump")}
 if(!jk&&p.vy<-4)p.vy=-4;
 p.vy=Math.min(p.vy+.6,14);
 p.x=Math.max(0,Math.min(GW-p.w,p.x+p.vx));
 if(p.vx)for(const s of p.so)if(hit(p,s))p.x=p.vx>0?s.x-p.w:s.x+s.w;
 p.y+=p.vy;p.g=false;
-for(const s of p.so)if(hit(p,s)){if(p.vy>0){p.y=s.y-p.h;p.g=true}else p.y=s.y+s.h;p.vy=0}
+for(const s of p.so)if(hit(p,s)){if(p.vy>0){if(p.vy>5)sfx("land");p.y=s.y-p.h;p.g=true}else p.y=s.y+s.h;p.vy=0}
 const seated=b.s==="throne"||b.s==="rise";
-const a=k.j||k.z||k.k;if(a&&!p.pa&&p.atk<=0&&alive&&!seated){p.atk=16;p.hitDone=false}p.pa=a;
+if(p.g&&p.vx){p.sc=(p.sc||0)+Math.abs(p.vx);if(p.sc>46){p.sc=0;sfx("step")}}
+const a=k.j||k.z||k.k;if(a&&!p.pa&&p.atk<=0&&alive&&!seated){p.atk=16;p.hitDone=false;sfx("swing")}p.pa=a;
 if(p.atk>0)p.atk--;if(p.inv>0)p.inv--;if(b.inv>0)b.inv--;if(b.flash>0)b.flash--;if(b.cd>0)b.cd--;if(b.dg>0)b.dg--;if(b.dgcd>0)b.dgcd--;if(b.spcd>0)b.spcd--;if(p.shake>0)p.shake--;
 p.fx=p.fx.filter(f=>--f.t>0);p.fx.forEach(f=>f.y-=.6);
-if(!alive){p.wt++;p.orbs=[];p.waves=[];if(p.wt===70){p.paused=true;p.k={};ovShow(`<h2>Dr. Eletrônio derrotado!</h2><p>A bobina de Tesla se apaga, os elétrons voltam para a cidade e as portas do castelo se abrem. Falta só enviar a sua prova.</p><button onclick="bossWin()">Enviar prova</button>`)}return}
+if(!alive){if(!p.wt)sfx("win");p.wt++;p.orbs=[];p.waves=[];if(p.wt===70){p.paused=true;p.k={};ovShow(`<h2>Dr. Eletrônio derrotado!</h2><p>A bobina de Tesla se apaga, os elétrons voltam para a cidade e as portas do castelo se abrem. Falta só enviar a sua prova.</p><button onclick="bossWin()">Enviar prova</button>`)}return}
 // projeteis
 for(const o of p.orbs){o.x+=o.vx;const bx={x:o.x-o.r,y:o.y-o.r,w:o.r*2,h:o.r*2};
- if(p.atk>0&&hit(swd(),bx)){o.dead=1;p.fx.push({x:o.x-20,y:o.y-14,t:30,tx:"Cortado!"})}
+ if(p.atk>0&&hit(swd(),bx)){o.dead=1;sfx("hit");p.fx.push({x:o.x-20,y:o.y-14,t:30,tx:"Cortado!"})}
  else if(!p.inv&&hit(p,bx)){o.dead=1;hurtB()}
  if(o.x<-20||o.x>GW+20)o.dead=1}
 p.orbs=p.orbs.filter(o=>!o.dead);
@@ -490,19 +553,19 @@ if(b.fy>=320){b.fy=320;b.vy=0;b.g=true}
 else if(b.vy>0)for(const s of p.so)if(s.h<20&&b.x+b.w/2>s.x&&b.x-b.w/2<s.x+s.w&&b.fy-b.vy<=s.y+2&&b.fy>=s.y){b.fy=s.y;b.vy=0;b.g=true}
 b.x=Math.max(62,Math.min(GW-62,b.x+b.vx));
 const dist=Math.abs(p.x+11-b.x),dir=p.x+11<b.x?-1:1,ph=phOf(b),body=bodyOf(b);
-if(b.s==="throne"){b.f=-1;b.vx=0;if(p.x>380){b.s="rise";b.t=0}}
+if(b.s==="throne"){b.f=-1;b.vx=0;if(p.x>380){b.s="rise";b.t=0;sfx("rise")}}
 else if(b.s==="rise"){b.f=-1;b.vx=0;if(++b.t>=70){b.s="walk";b.rise=1;b.cd=30}else b.rise=b.t/70}
 else{
  if(!["melee","fire","dash","dashw","roar"].includes(b.s))b.f=dir;
  if(p.atk>0&&!p.hitDone&&b.inv<=0&&b.dg<=0&&hit(swd(),body)){
-  p.hitDone=true;b.hp-=SDMG;b.inv=12;b.flash=10;b.vx=p.f*2.5;
+  p.hitDone=true;sfx("hit");b.hp-=SDMG;b.inv=12;b.flash=10;b.vx=p.f*2.5;
   const np=phOf(b);
-  if(b.hp>0&&np>b.phase){b.phase=np;b.s="roar";b.t=0;b.dg=64;b.vx=0;b.sq=0;p.shake=20;bossSay(p,b,np===2?"Chega!":"AGORA É SÉRIO!")}
+  if(b.hp>0&&np>b.phase){b.phase=np;b.s="roar";sfx("roar");b.t=0;b.dg=64;b.vx=0;b.sq=0;p.shake=20;bossSay(p,b,np===2?"Chega!":"AGORA É SÉRIO!")}
   else if(b.hp>0&&b.s==="walk"&&Math.random()<.3){b.s="melee";b.t=0;b.mt=[0,16,14,12][ph];b.f=dir}}
  if(p.atk===15&&b.g&&b.dgcd<=0&&b.dg<=0&&["walk","charge","orbs"].includes(b.s)&&dist<115&&Math.random()<[0,.5,.65,.75][ph]){
   if(Math.random()<.5){bossJump(b,-dir*5,-10,1);b.dtype=1;b.dg=28}
   else{b.s="sdash";b.t=0;b.dtype=2;b.dg=16;b.dd=-dir;b.cn=1;b.vy=-3}
-  b.dgcd=[0,80,65,50][ph];p.fx.push({x:b.x-30,y:b.fy-b.h-10,t:40,tx:"Desviou!"})}
+  b.dgcd=[0,80,65,50][ph];p.fx.push({x:b.x-30,y:b.fy-b.h-10,t:40,tx:"Desviou!"});sfx("dodge")}
  if(b.s==="walk"){
   const sp=[0,1.3,1.8,2.3][ph];
   if(dist>85)b.vx=dir*sp;else if(dist<55)b.vx=-dir*sp*.8;else b.vx*=.8;
@@ -511,22 +574,22 @@ else{
  else if(b.s==="sdash"){b.t++;b.vx=b.dd*9*(1-b.t/16);if(b.t>=16){b.vx=0;b.dtype=0;if(b.cn){b.cn=0;if(dist<140){b.s="melee";b.t=0;b.mt=[0,16,14,12][ph]}else{b.s="orbs";b.t=0}}else{b.s="walk";b.cd=30}}}
  else if(b.s==="melee"){b.t++;
   if(b.t<b.mt)b.vx*=.8;
-  else if(b.t<b.mt+8){b.vx=b.f*3.2;const z={x:b.f>0?b.x+4:b.x-88,y:b.fy-96,w:84,h:96};if(!p.inv&&hit(p,z))hurtB()}
+  else if(b.t<b.mt+8){if(b.t===b.mt)sfx("zap");b.vx=b.f*3.2;const z={x:b.f>0?b.x+4:b.x-88,y:b.fy-96,w:84,h:96};if(!p.inv&&hit(p,z))hurtB()}
   else b.vx*=.6;
   if(b.t>=b.mt+8){b.s="walk";b.cd=30}}
  else if(b.s==="orbs"){b.t++;b.vx*=.8;const T1=[0,28,24,20][ph];
-  for(let i=0;i<ph;i++)if(b.t===T1+i*9){const tp=bossPt(b,bossAnim(b),BO.tx,BO.ty);p.orbs.push({x:tp[0],y:Math.random()<.5?296:270,vx:b.f*(4+ph*.6),r:9,age:0})}
+  for(let i=0;i<ph;i++)if(b.t===T1+i*9){const tp=bossPt(b,bossAnim(b),BO.tx,BO.ty);sfx("orb");p.orbs.push({x:tp[0],y:Math.random()<.5?296:270,vx:b.f*(4+ph*.6),r:9,age:0})}
   if(b.t>=T1+ph*9+10){b.s="walk";b.cd=30}}
- else if(b.s==="dashw"){b.t++;b.vx*=.8;if(b.t>=[0,30,26,22][ph]){b.s="dash";b.t=0}}
+ else if(b.s==="dashw"){b.t++;b.vx*=.8;if(b.t>=[0,30,26,22][ph]){b.s="dash";b.t=0;sfx("dash")}}
  else if(b.s==="dash"){b.t++;b.vx=b.dd*[0,10,11,12.5][ph];
   const z={x:b.x-b.w/2-8,y:b.fy-70,w:b.w+16,h:70};if(!p.inv&&hit(p,z))hurtB();
   if(b.x<=63||b.x>=GW-63||b.t>70){b.s="stun";b.t=0;b.vx=0}}
- else if(b.s==="slamw"){b.t++;b.vx*=.8;b.tgt=p.x+11;if(b.t>=16){b.s="slam";b.t=0;b.vy=-15;b.vx=Math.max(-6,Math.min(6,(p.x+11-b.x)/42));b.g=false}}
+ else if(b.s==="slamw"){b.t++;b.vx*=.8;b.tgt=p.x+11;if(b.t>=16){b.s="slam";sfx("whoosh");b.t=0;b.vy=-15;b.vx=Math.max(-6,Math.min(6,(p.x+11-b.x)/42));b.g=false}}
  else if(b.s==="slam"){b.t++;
-  if(b.g&&b.t>6){p.shake=14;p.waves.push({x:b.x,d:-1},{x:b.x,d:1});if(!p.inv&&hit(p,{x:b.x-50,y:b.fy-40,w:100,h:40}))hurtB();b.s="stun";b.t=0;b.vx=0}}
+  if(b.g&&b.t>6){sfx("slam");p.shake=14;p.waves.push({x:b.x,d:-1},{x:b.x,d:1});if(!p.inv&&hit(p,{x:b.x-50,y:b.fy-40,w:100,h:40}))hurtB();b.s="stun";b.t=0;b.vx=0}}
  else if(b.s==="stun"){b.t++;b.vx*=.8;if(b.t>=[0,44,38,32][ph]){b.s="walk";b.cd=30}}
  else if(b.s==="roar"){b.t++;b.vx=0;if(b.t>=64){b.s="walk";b.cd=20}}
- else if(b.s==="charge"){b.vx*=.8;if(--b.t<=0){b.s="fire";b.t=24}}
+ else if(b.s==="charge"){b.vx*=.8;if(--b.t<=0){b.s="fire";b.t=24;sfx("zap")}}
  else if(b.s==="fire"){b.vx*=.8;
   const zs=b.k==="low"?[b.f>0?{x:b.x+10,y:288,w:GW,h:32}:{x:0,y:288,w:b.x-10,h:32}]:b.xs.map(x=>({x:x-14,y:0,w:28,h:320}));
   if(!p.inv&&zs.some(z=>hit(p,z)))hurtB();
@@ -571,14 +634,14 @@ c.restore();
 c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("Vida",12,22);heartsDraw(c,p.hp);
 if(b.rise>=1){c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("Dr. Eletrônio",GW-232,24);c.strokeStyle="#4b2a7a";c.lineWidth=2;c.strokeRect(GW-232,30,220,14);c.fillStyle="#ff5470";c.fillRect(GW-230,32,216*Math.max(0,b.hp)/BHP,10);c.fillStyle="#050308";c.fillRect(GW-230+216/3-1,32,2,10);c.fillRect(GW-230+216*2/3-1,32,2,10)}}
 buildBG();buildHall();buildBricks();
-function pick(j){st.sel=st.op[st.p[st.i]][j];document.querySelectorAll(".opt").forEach((b,k)=>b.classList.toggle("on",k===j));$("go").disabled=false}
-function next(){st.a[st.p[st.i]]=st.sel;st.i++;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a,p:st.p,op:st.op,intro:1});$("ov").style.display="none";q()}
+function pick(j){sfx("click");st.sel=st.op[st.p[st.i]][j];document.querySelectorAll(".opt").forEach((b,k)=>b.classList.toggle("on",k===j));$("go").disabled=false}
+function next(){sfx("confirm");st.a[st.p[st.i]]=st.sel;st.i++;ls("st_"+st.c,{n:st.n,c:st.c,i:st.i,a:st.a,p:st.p,op:st.op,intro:1});$("ov").style.display="none";q()}
 function mk(s){const p=s.n+"|"+s.a.join("");return btoa(unescape(encodeURIComponent(p+"|"+hash(p))))}
 async function send(d){app.innerHTML='<div class="card"><p>Enviando sua prova…</p></div>';
 try{d.sent=!!await rpc("enviar",{p_codigo:d.c,p_respostas:d.a.join("")});d.err=d.sent?"":"O servidor recusou o envio (prova já enviada ou código não cadastrado)."}catch(e){d.err="Sem conexão com o servidor."}
 ls("done_"+d.c,d);finish(d)}
 function retry(c){send(ls("done_"+c))}
-function finish(d){
+function finish(d){music("");sfx("win");
 const hit=d.a.map((v,i)=>v===Q[i].a),n=hit.filter(Boolean).length;
 app.innerHTML=`<h1>Você escapou da mansão</h1><div class="card"><p>${esc(d.n)}, prova finalizada. Você acertou <b class="ok">${n}</b> de ${Q.length} portas. A nota oficial será divulgada pelo professor.</p>
 ${d.sent?'<p class="ok"><b>Prova enviada ao professor.</b></p>':`<p class="err"><b>Prova ainda não enviada.</b> ${esc(d.err||"")}</p><button onclick="retry('${d.c}')">Tentar enviar de novo</button><p>Se não conseguir, mostre este código ao professor:</p><div class="code">${d.code}</div>`}</div>
