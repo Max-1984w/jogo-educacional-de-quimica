@@ -225,7 +225,10 @@ function buildBricks(){
   t.fillStyle="#2a0a66";t.fillRect(bx+30,by,2,16);t.fillRect(bx,by+14,32,2)}
  const g=t.createLinearGradient(0,0,0,80);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(20,0,60,.55)");t.fillStyle=g;t.fillRect(0,0,64,80)}
 function camOf(p,VW,maxx,lead){const t=Math.max(0,Math.min(p.x-VW*lead,maxx));p.cam=p.cam==null?t:p.cam+(t-p.cam)*.18;return p.cam}
-function boom(p,x,y){sfx("splat");for(let i=0;i<30;i++){const a=Math.random()*6.283,s=1+Math.random()*3.8;p.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,t:50+Math.floor(Math.random()*40),s:2+Math.floor(Math.random()*4),f:1,c:["#ffffff","#f4f1fa","#e3deee","#fbfbff"][i%4]})}p.rings.push({x,y,t:18})}
+function boom(p,x,y){sfx("splat");
+for(let i=0;i<9;i++){const a=-Math.PI*(.1+.8*Math.random()),s=3+Math.random()*4.5;p.parts.push({x,y,vx:Math.cos(a)*s*(Math.random()<.5?-1:1),vy:Math.sin(a)*s-1,t:80+Math.floor(Math.random()*40),s:6+Math.floor(Math.random()*6),f:1,o:1,b:.35,c:["#ffffff","#f4f1fa","#e3deee"][i%3]})}
+for(let i=0;i<34;i++){const a=Math.random()*6.283,s=1+Math.random()*5;p.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2.5,t:60+Math.floor(Math.random()*50),s:2+Math.floor(Math.random()*4),f:1,c:["#ffffff","#f4f1fa","#e3deee","#fbfbff"][i%4]})}
+p.rings.push({x,y,t:18});if(p.shake!==undefined)p.shake=Math.max(p.shake||0,6)}
 
 /* SALAO DO TRONO (fundo estatico + efeitos animados) */
 const HCOL=[20,300,580],HCYL=[[170,"#2ad4ff"],[440,"#b8ff1a"]],HCOIL=[355,620];
@@ -351,7 +354,7 @@ if(p.gate){p.x=Math.min(p.x,GW-p.w);
 const sk=k.k||k.l||k.e;if(sk&&!p.ps)fireRay(p);p.ps=sk;rayStep(p);
 for(const c of p.cps)if(p.x>c.x&&c.x>p.cp){p.cp=c.x;sfx("cp")}
 p.fx=p.fx.filter(f=>--f.t>0);p.fx.forEach(f=>f.y-=1.5);
-if(p.parts){for(const q of p.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.18;q.t--;if(q.f&&q.y>316){q.y=316;q.vx=0;q.vy=0}}p.parts=p.parts.filter(q=>q.t>0);p.rings=p.rings.filter(r=>--r.t>0)}
+if(p.parts){for(const q of p.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.18;q.t--;if(q.f&&q.y>316){q.y=316;if(q.b&&q.vy>1.5){q.vy*=-q.b;q.vx*=.6}else{q.vx=0;q.vy=0}}}p.parts=p.parts.filter(q=>q.t>0);p.rings=p.rings.filter(r=>--r.t>0)}
 for(const c of p.co)if(!c.t&&hit(p,{x:c.x,y:c.y,w:12,h:12})){c.t=1;p.n++;sfx("coin")}
 for(const e of p.en){if(!e.alive)continue;e.x+=e.d;if(e.x<e.a||e.x>e.b)e.d*=-1;
  if(p.atk>0&&hit(swd(),{x:e.x,y:e.y,w:28,h:32})){e.alive=false;boom(p,e.x+14,e.y+16);continue}
@@ -400,7 +403,7 @@ for(const f of p.cps){const x=f.x-cam;if(x<-20||x>VW+10)continue;const on=p.cp>=
 for(const o of p.co){if(o.t)continue;const x=o.x-cam;if(x<-20||x>VW+10)continue;c.fillStyle="#b8ff1a";c.fillRect(x,o.y,12,12);c.fillStyle="#050308";c.fillRect(x+4,o.y+4,4,4)}
 for(const f of p.fx){c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("+1",f.x-cam,f.y)}
 for(const e of p.en){if(!e.alive)continue;const x=e.x-cam;if(x<-40||x>VW+10)continue;c.fillStyle="#f1ecf8";c.fillRect(x,e.y,28,24);[0,1,2].forEach(i=>{if(i!==1)c.fillRect(x+i*10,e.y+24,8,8)});c.fillStyle="#050308";c.fillRect(x+6,e.y+6,5,6);c.fillRect(x+17,e.y+6,5,6)}
-for(const q of p.parts){c.globalAlpha=Math.min(1,q.t/20);c.fillStyle=q.c;c.fillRect(q.x-cam,q.y,q.s,q.s)}c.globalAlpha=1;
+for(const q of p.parts){c.globalAlpha=Math.min(1,q.t/20);if(q.o){c.fillStyle="#2a0a66";c.fillRect(q.x-cam-1,q.y-1,q.s+2,q.s+2)}c.fillStyle=q.c;c.fillRect(q.x-cam,q.y,q.s,q.s)}c.globalAlpha=1;
 for(const r of p.rings){const k=1-r.t/18;if(r.t>12){c.fillStyle="rgba(255,255,255,.6)";c.beginPath();c.arc(r.x-cam,r.y,10+k*10,0,7);c.fill()}c.strokeStyle="rgba(255,255,255,"+(1-k)+")";c.lineWidth=3;c.beginPath();c.arc(r.x-cam,r.y,6+k*30,0,7);c.stroke()}
 drawRays(c,p,cam);drawPlayer(c,p.x-cam,p.y,p.f,p.atk,p.hurt>0&&(p.hurt>>2)%2);
 c.restore();
@@ -489,7 +492,7 @@ function drawRays(c,p,cam){for(const r of p.rays){const x=r.x-cam;
  c.fillStyle="#7fe9ff";c.beginPath();c.arc(x,r.y,8,0,7);c.fill();c.fillStyle="#fff";c.beginPath();c.arc(x,r.y,4,0,7);c.fill();
  for(let i=0;i<3;i++){const a=Math.random()*6.283;bolt(c,x,r.y,x+Math.cos(a)*18,r.y+Math.sin(a)*18,1.5,"#bff6ff")}}}
 function rayHud(c){const t=Math.max(0,RAYNEXT-performance.now()),r=t<=0;c.font="bold 13px Arial";c.fillStyle=r?"#7fe9ff":"#9d8fb5";c.fillText(r?"Raio [K]: PRONTO":"Raio: "+Math.ceil(t/1000)+"s",GW/2-52,22);c.fillStyle="#2a0a66";c.fillRect(GW/2-52,28,104,6);c.fillStyle=r?"#7fe9ff":"#8a2be2";c.fillRect(GW/2-52,28,104*(1-t/10000),6)}
-function drawParts(c,p,cam){for(const q of p.parts){c.globalAlpha=Math.min(1,q.t/20);c.fillStyle=q.c;c.fillRect(q.x-cam,q.y,q.s,q.s)}c.globalAlpha=1;
+function drawParts(c,p,cam){for(const q of p.parts){c.globalAlpha=Math.min(1,q.t/20);if(q.o){c.fillStyle="#2a0a66";c.fillRect(q.x-cam-1,q.y-1,q.s+2,q.s+2)}c.fillStyle=q.c;c.fillRect(q.x-cam,q.y,q.s,q.s)}c.globalAlpha=1;
  for(const r of p.rings){const k=1-r.t/18;if(r.t>12){c.fillStyle="rgba(255,255,255,.6)";c.beginPath();c.arc(r.x-cam,r.y,10+k*10,0,7);c.fill()}c.strokeStyle="rgba(255,255,255,"+(1-k)+")";c.lineWidth=3;c.beginPath();c.arc(r.x-cam,r.y,6+k*30,0,7);c.stroke()}}
 /* ABRIGOS no salao do trono */
 function coverHit(p,c){c.hf=8;c.hp--;if(c.hp<=0){c.rt=900;boom(p,c.x+c.w/2,c.y+c.h/2)}else sfx("hit")}
@@ -599,7 +602,7 @@ const a=k.j||k.z;if(a&&!p.pa&&p.atk<=0&&alive&&!seated){p.atk=16;p.hitDone=false
 const sk=k.k||k.l||k.e;if(sk&&!p.ps&&alive&&!seated)fireRay(p);p.ps=sk;
 if(p.atk>0)p.atk--;if(p.inv>0)p.inv--;if(b.inv>0)b.inv--;if(b.flash>0)b.flash--;if(b.cd>0)b.cd--;if(b.dg>0)b.dg--;if(b.dgcd>0)b.dgcd--;if(b.spcd>0)b.spcd--;if(p.shake>0)p.shake--;
 p.fx=p.fx.filter(f=>--f.t>0);p.fx.forEach(f=>f.y-=.6);
-for(const q of p.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.18;q.t--;if(q.f&&q.y>316){q.y=316;q.vx=0;q.vy=0}}p.parts=p.parts.filter(q=>q.t>0);p.rings=p.rings.filter(r=>--r.t>0);
+for(const q of p.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.18;q.t--;if(q.f&&q.y>316){q.y=316;if(q.b&&q.vy>1.5){q.vy*=-q.b;q.vx*=.6}else{q.vx=0;q.vy=0}}}p.parts=p.parts.filter(q=>q.t>0);p.rings=p.rings.filter(r=>--r.t>0);
 for(const v of p.covers){if(v.hf>0)v.hf--;if(v.hp<=0&&--v.rt<=0)v.hp=3}
 if(!alive){if(!p.wt)sfx("win");p.wt++;p.orbs=[];p.waves=[];if(p.wt===70){p.paused=true;p.k={};ovShow(`<h2>Dr. Eletrônio derrotado!</h2><p>A bobina de Tesla se apaga, os elétrons voltam para a cidade e as portas do castelo se abrem. Falta só enviar a sua prova.</p><button onclick="bossWin()">Enviar prova</button>`)}return}
 // projeteis
