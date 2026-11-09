@@ -114,6 +114,7 @@ const SFXD={
  step:()=>nz(.03,.04,900),
  swing:()=>{nz(.12,.1,2600);tn(520,.1,"sawtooth",.03,-320)},
  hit:()=>{nz(.1,.22,1800);tn(190,.12,"square",.12,-110)},
+ splat:()=>{nz(.12,.22,500);tn(300,.18,"sine",.14,-200);tn(120,.22,"triangle",.1,-60)},
  boom:()=>{nz(.35,.3,900);tn(170,.3,"sawtooth",.12,-130)},
  coin:()=>{tn(988,.07,"square",.07);tn(1319,.12,"square",.07,0,.07)},
  block:()=>{tn(520,.1,"square",.09,220);tn(780,.12,"square",.09,0,.09)},
@@ -224,7 +225,7 @@ function buildBricks(){
   t.fillStyle="#2a0a66";t.fillRect(bx+30,by,2,16);t.fillRect(bx,by+14,32,2)}
  const g=t.createLinearGradient(0,0,0,80);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(20,0,60,.55)");t.fillStyle=g;t.fillRect(0,0,64,80)}
 function camOf(p,VW,maxx,lead){const t=Math.max(0,Math.min(p.x-VW*lead,maxx));p.cam=p.cam==null?t:p.cam+(t-p.cam)*.18;return p.cam}
-function boom(p,x,y){sfx("boom");for(let i=0;i<18;i++){const a=Math.random()*6.283,s=1.5+Math.random()*3.5;p.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.5,t:30+Math.floor(Math.random()*20),s:2+Math.floor(Math.random()*3),c:["#f1ecf8","#b8ff1a","#8a2be2","#ff2fd0"][i%4]})}p.rings.push({x,y,t:18})}
+function boom(p,x,y){sfx("splat");for(let i=0;i<30;i++){const a=Math.random()*6.283,s=1+Math.random()*3.8;p.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,t:50+Math.floor(Math.random()*40),s:2+Math.floor(Math.random()*4),f:1,c:["#ffffff","#f4f1fa","#e3deee","#fbfbff"][i%4]})}p.rings.push({x,y,t:18})}
 
 /* SALAO DO TRONO (fundo estatico + efeitos animados) */
 const HCOL=[20,300,580],HCYL=[[170,"#2ad4ff"],[440,"#b8ff1a"]],HCOIL=[355,620];
@@ -350,7 +351,7 @@ if(p.gate){p.x=Math.min(p.x,GW-p.w);
 const sk=k.k||k.l||k.e;if(sk&&!p.ps)fireRay(p);p.ps=sk;rayStep(p);
 for(const c of p.cps)if(p.x>c.x&&c.x>p.cp){p.cp=c.x;sfx("cp")}
 p.fx=p.fx.filter(f=>--f.t>0);p.fx.forEach(f=>f.y-=1.5);
-if(p.parts){for(const q of p.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.18;q.t--}p.parts=p.parts.filter(q=>q.t>0);p.rings=p.rings.filter(r=>--r.t>0)}
+if(p.parts){for(const q of p.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.18;q.t--;if(q.f&&q.y>316){q.y=316;q.vx=0;q.vy=0}}p.parts=p.parts.filter(q=>q.t>0);p.rings=p.rings.filter(r=>--r.t>0)}
 for(const c of p.co)if(!c.t&&hit(p,{x:c.x,y:c.y,w:12,h:12})){c.t=1;p.n++;sfx("coin")}
 for(const e of p.en){if(!e.alive)continue;e.x+=e.d;if(e.x<e.a||e.x>e.b)e.d*=-1;
  if(p.atk>0&&hit(swd(),{x:e.x,y:e.y,w:28,h:32})){e.alive=false;boom(p,e.x+14,e.y+16);continue}
@@ -400,7 +401,7 @@ for(const o of p.co){if(o.t)continue;const x=o.x-cam;if(x<-20||x>VW+10)continue;
 for(const f of p.fx){c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("+1",f.x-cam,f.y)}
 for(const e of p.en){if(!e.alive)continue;const x=e.x-cam;if(x<-40||x>VW+10)continue;c.fillStyle="#f1ecf8";c.fillRect(x,e.y,28,24);[0,1,2].forEach(i=>{if(i!==1)c.fillRect(x+i*10,e.y+24,8,8)});c.fillStyle="#050308";c.fillRect(x+6,e.y+6,5,6);c.fillRect(x+17,e.y+6,5,6)}
 for(const q of p.parts){c.globalAlpha=Math.min(1,q.t/20);c.fillStyle=q.c;c.fillRect(q.x-cam,q.y,q.s,q.s)}c.globalAlpha=1;
-for(const r of p.rings){const k=1-r.t/18;if(r.t>12){c.fillStyle="rgba(184,255,26,.5)";c.beginPath();c.arc(r.x-cam,r.y,10+k*10,0,7);c.fill()}c.strokeStyle="rgba(255,255,255,"+(1-k)+")";c.lineWidth=3;c.beginPath();c.arc(r.x-cam,r.y,6+k*30,0,7);c.stroke()}
+for(const r of p.rings){const k=1-r.t/18;if(r.t>12){c.fillStyle="rgba(255,255,255,.6)";c.beginPath();c.arc(r.x-cam,r.y,10+k*10,0,7);c.fill()}c.strokeStyle="rgba(255,255,255,"+(1-k)+")";c.lineWidth=3;c.beginPath();c.arc(r.x-cam,r.y,6+k*30,0,7);c.stroke()}
 drawRays(c,p,cam);drawPlayer(c,p.x-cam,p.y,p.f,p.atk,p.hurt>0&&(p.hurt>>2)%2);
 c.restore();
 c.fillStyle="#b8ff1a";c.font="bold 14px Arial";c.fillText("Elétrons: "+p.n,12,24);c.fillText(Math.min(100,Math.round(p.x/(p.len-80)*100))+"%",GW-50,24);rayHud(c)}
@@ -443,7 +444,12 @@ ground(c,0,p.so[0],0);
 c.fillStyle="#2a0a66";for(let x=60;x<540;x+=90){c.fillRect(x,296,4,24);c.fillRect(x-6,292,16,6);c.fillStyle="#b8ff1a";c.fillRect(x-4,294,12,2);c.fillStyle="#2a0a66"}
 // NPC (Enfermeira Volta)
 {const x=412,bob=Math.sin(T/260)*1.5;
- c.imageSmoothingEnabled=false;c.drawImage(NI,x,320-NP.H+(Math.sin(T/500)>0?0:1));
+ c.imageSmoothingEnabled=false;
+ const sp=p.dlg&&p.dlg.n<NL[p.dlg.i].length;
+ if(sp){const w=Math.abs(Math.sin(T/95)),hop=Math.round(w*3),sy=1+w*.05,sx=1-w*.03,tilt=Math.sin(T/190)*.05;
+  c.save();c.translate(x+NP.W/2,320);c.rotate(tilt);c.scale(sx,sy);c.drawImage(NI,-NP.W/2,-NP.H-hop);c.restore();
+  c.fillStyle="#b8ff1a";for(let k=0;k<2;k++){const a=(T/140+k*3.1)%6.28;c.fillRect(x+NP.W+3+k*5,320-NP.H*.7-k*8+Math.sin(a)*2,2,2)}}
+ else c.drawImage(NI,x,320-NP.H+(Math.sin(T/500)>0?0:1));
  c.fillStyle="#f1ecf8";c.font="bold 12px Arial";c.fillText("Enf. Volta",x-14,320-NP.H-8);
  if(!p.talked){c.fillStyle="#b8ff1a";c.font="bold 22px Arial";c.fillText("!",x+NP.W/2-4,320-NP.H-18+bob)}}
 if(p.dlg){const d=p.dlg,txt=NL[d.i],n=Math.min(txt.length,Math.floor((T-d.t0)/28));
@@ -484,7 +490,7 @@ function drawRays(c,p,cam){for(const r of p.rays){const x=r.x-cam;
  for(let i=0;i<3;i++){const a=Math.random()*6.283;bolt(c,x,r.y,x+Math.cos(a)*18,r.y+Math.sin(a)*18,1.5,"#bff6ff")}}}
 function rayHud(c){const t=Math.max(0,RAYNEXT-performance.now()),r=t<=0;c.font="bold 13px Arial";c.fillStyle=r?"#7fe9ff":"#9d8fb5";c.fillText(r?"Raio [K]: PRONTO":"Raio: "+Math.ceil(t/1000)+"s",GW/2-52,22);c.fillStyle="#2a0a66";c.fillRect(GW/2-52,28,104,6);c.fillStyle=r?"#7fe9ff":"#8a2be2";c.fillRect(GW/2-52,28,104*(1-t/10000),6)}
 function drawParts(c,p,cam){for(const q of p.parts){c.globalAlpha=Math.min(1,q.t/20);c.fillStyle=q.c;c.fillRect(q.x-cam,q.y,q.s,q.s)}c.globalAlpha=1;
- for(const r of p.rings){const k=1-r.t/18;if(r.t>12){c.fillStyle="rgba(184,255,26,.5)";c.beginPath();c.arc(r.x-cam,r.y,10+k*10,0,7);c.fill()}c.strokeStyle="rgba(255,255,255,"+(1-k)+")";c.lineWidth=3;c.beginPath();c.arc(r.x-cam,r.y,6+k*30,0,7);c.stroke()}}
+ for(const r of p.rings){const k=1-r.t/18;if(r.t>12){c.fillStyle="rgba(255,255,255,.6)";c.beginPath();c.arc(r.x-cam,r.y,10+k*10,0,7);c.fill()}c.strokeStyle="rgba(255,255,255,"+(1-k)+")";c.lineWidth=3;c.beginPath();c.arc(r.x-cam,r.y,6+k*30,0,7);c.stroke()}}
 /* ABRIGOS no salao do trono */
 function coverHit(p,c){c.hf=8;c.hp--;if(c.hp<=0){c.rt=900;boom(p,c.x+c.w/2,c.y+c.h/2)}else sfx("hit")}
 function lowZone(b,p){const z=b.f>0?{x:b.x+10,y:288,w:GW,h:32}:{x:0,y:288,w:b.x-10,h:32};let cv=null;
@@ -593,7 +599,7 @@ const a=k.j||k.z;if(a&&!p.pa&&p.atk<=0&&alive&&!seated){p.atk=16;p.hitDone=false
 const sk=k.k||k.l||k.e;if(sk&&!p.ps&&alive&&!seated)fireRay(p);p.ps=sk;
 if(p.atk>0)p.atk--;if(p.inv>0)p.inv--;if(b.inv>0)b.inv--;if(b.flash>0)b.flash--;if(b.cd>0)b.cd--;if(b.dg>0)b.dg--;if(b.dgcd>0)b.dgcd--;if(b.spcd>0)b.spcd--;if(p.shake>0)p.shake--;
 p.fx=p.fx.filter(f=>--f.t>0);p.fx.forEach(f=>f.y-=.6);
-for(const q of p.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.18;q.t--}p.parts=p.parts.filter(q=>q.t>0);p.rings=p.rings.filter(r=>--r.t>0);
+for(const q of p.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.18;q.t--;if(q.f&&q.y>316){q.y=316;q.vx=0;q.vy=0}}p.parts=p.parts.filter(q=>q.t>0);p.rings=p.rings.filter(r=>--r.t>0);
 for(const v of p.covers){if(v.hf>0)v.hf--;if(v.hp<=0&&--v.rt<=0)v.hp=3}
 if(!alive){if(!p.wt)sfx("win");p.wt++;p.orbs=[];p.waves=[];if(p.wt===70){p.paused=true;p.k={};ovShow(`<h2>Dr. Eletrônio derrotado!</h2><p>A bobina de Tesla se apaga, os elétrons voltam para a cidade e as portas do castelo se abrem. Falta só enviar a sua prova.</p><button onclick="bossWin()">Enviar prova</button>`)}return}
 // projeteis
@@ -702,10 +708,8 @@ try{d.sent=!!await rpc("enviar",{p_codigo:d.c,p_respostas:d.a.join("")});d.err=d
 ls("done_"+d.c,d);finish(d)}
 function retry(c){send(ls("done_"+c))}
 function finish(d){music("");sfx("win");
-const hit=d.a.map((v,i)=>v===Q[i].a),n=hit.filter(Boolean).length;
-app.innerHTML=`<h1>Você escapou da mansão</h1><div class="card"><p>${esc(d.n)}, prova finalizada. Você acertou <b class="ok">${n}</b> de ${Q.length} portas. A nota oficial será divulgada pelo professor.</p>
+app.innerHTML=`<h1>Você escapou da mansão</h1><div class="card"><p>${esc(d.n)}, prova finalizada. A nota oficial será divulgada pelo professor.</p>
 ${d.sent?'<p class="ok"><b>Prova enviada ao professor.</b></p>':`<p class="err"><b>Prova ainda não enviada.</b> ${esc(d.err||"")}</p><button onclick="retry('${d.c}')">Tentar enviar de novo</button><p>Se não conseguir, mostre este código ao professor:</p><div class="code">${d.code}</div>`}</div>
-<div class="card"><h2>Revisão</h2>${Q.map((x,i)=>`<p><b class="${hit[i]?"ok":"err"}">${hit[i]?"Certa":"Errada"}</b> <b>Questão ${i+1}:</b> ${esc(x.t)}<br><span style="color:var(--mut)">Resposta certa: ${"ABCD"[(d.op?d.op[i]:[0,1,2,3]).indexOf(x.a)]}) ${esc(x.o[x.a])}</span></p>`).join("")}</div>
 <button class="sec" onclick="home()">Sair</button>`}
 
 /* PROFESSOR */
